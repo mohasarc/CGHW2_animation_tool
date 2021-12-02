@@ -204,7 +204,6 @@ function initAnimCanvas() {
     //  Load shaders and initialize attribute buffers
     
     colorCube();
-    colorCube();
 
    
     // Create and initialize  buffer objects
@@ -267,7 +266,8 @@ function initAnimCanvas() {
  * This function will be called on every fram to calculate what to draw to the frame buffer
  */
 function render() {
-   ANIM_CANVAS_GL.clear( ANIM_CANVAS_GL.COLOR_BUFFER_BIT |ANIM_CANVAS_GL.DEPTH_BUFFER_BIT );
+    ANIM_CANVAS_GL.clear(ANIM_CANVAS_GL.COLOR_BUFFER_BIT | ANIM_CANVAS_GL.DEPTH_BUFFER_BIT);
+
     modelViewMatrix = MV.rotate(theta[lowerBodyId], 0, 1, 0);
     lowerBody();
 
