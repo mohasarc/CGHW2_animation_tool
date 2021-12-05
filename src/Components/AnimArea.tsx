@@ -115,7 +115,7 @@ var noseHeight = 0.5;
 var noseWidth = 0.25;
 
 var groundHeight = 2.0;
-var groundWidth = 12.0;
+var groundWidth = 20.0;
 
 
 // Parameters controlling the size of the Robot's arm
@@ -139,7 +139,7 @@ var UpperArm2 = 3;
 
 
 var theta = [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var thetaX = [0, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var thetaX = [10, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var thetaY = [0, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var thetaZ = [0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -300,7 +300,15 @@ function render() {
 
     modelViewMatrix = MV.rotate(20, 1, 0, 0);
     let completeRotation = 360 * theta[lowerBodyId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotation, 0, 1, 0));
+    
+    let completeRotationX = 360 * thetaX[lowerBodyId] / 100;
+    let completeRotationY = 360 * thetaY[lowerBodyId] / 100;
+    let completeRotationZ = 360 * thetaZ[lowerBodyId] / 100;
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationX, 1, 0, 0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationY, 0, 1, 0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationZ, 0, 0, 1));
+    
+    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotation, 0, 1, 0));
     lowerBody();
 
     stack.push(modelViewMatrix);
@@ -567,7 +575,8 @@ function leftFrontUpperLeg() {
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
+        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
+
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
 
@@ -603,7 +612,7 @@ function rightFrontUpperLeg() {
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
+        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
 
@@ -640,7 +649,7 @@ function leftBackUpperLeg() {
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
+        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
 
@@ -676,7 +685,7 @@ function rightBackUpperLeg() {
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
+        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
 
@@ -812,3 +821,5 @@ function ground() {
 
     ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
 }
+
+

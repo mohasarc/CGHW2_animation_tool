@@ -25,7 +25,8 @@ export default function MotionControls() {
                     value={value}
                     onChange={(event: any) => { handleChange(event.target.value) }}
 
-                    >
+                >
+                    <FormControlLabel value={0} control={<Radio />} label="Camera" />
                     <FormControlLabel value={2} control={<Radio />} label="Head" />
                     <FormControlLabel value={1} control={<Radio />} label="Upper Body" />
                     <FormControlLabel value={3} control={<Radio />} label="Right Upper Arm" />
