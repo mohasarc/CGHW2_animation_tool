@@ -114,6 +114,9 @@ var eye = 0.25;
 var noseHeight = 0.5;
 var noseWidth = 0.25;
 
+var groundHeight = 2.0;
+var groundWidth = 12.0;
+
 
 // Parameters controlling the size of the Robot's arm
 var BASE_HEIGHT      = 2.0;
@@ -261,13 +264,21 @@ function initAnimCanvas() {
         //console.log(bodyPart);
 
     });
-    ANIM_CANVAS.addEventListener("mousedown", function (event: MouseEvent) {
-      
+    var a = 15;
+    ANIM_CANVAS.addEventListener("wheel", function (event: WheelEvent) {
+        if (event.deltaY > 0) {
+            a--;
+        } else {
+            a++;
+        }
+        projectionMatrix = MV.ortho(-a, a, -a, a, -a, a);
+        ANIM_CANVAS_GL.uniformMatrix4fv(ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"), false, MV.flatten(projectionMatrix));
+        
     });
 
 
     modelViewMatrixLoc = ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "modelViewMatrix");
-    projectionMatrix = MV.ortho(-10, 10, -10, 10, -10, 10);
+    projectionMatrix = MV.ortho(-15, 15, -15, 15, -15, 15);
     ANIM_CANVAS_GL.uniformMatrix4fv( ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"),  false, MV.flatten(projectionMatrix) );
     console.log(points);
     render();
@@ -279,6 +290,7 @@ function initAnimCanvas() {
 function render() {
 
     ANIM_CANVAS_GL.clear(ANIM_CANVAS_GL.COLOR_BUFFER_BIT | ANIM_CANVAS_GL.DEPTH_BUFFER_BIT);
+
 
     modelViewMatrix = MV.rotate(20, 1, 0, 0);
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(theta[lowerBodyId], 0, 1, 0));
@@ -420,6 +432,9 @@ function render() {
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightBackLowerLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightBackLowerLegId], 0, 0, 1));
     rightBackLowerLeg();
+
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-lowerBodyWidth / 2 + upperLegWitdh * 3, -2 * groundHeight, lowerBodyHeight / 2 - upperLegWitdh / 2));
+    ground();
     
     requestAnimationFrame(render);
 }
@@ -772,6 +787,22 @@ function upperBody() {
         upperBodyColor.push(MV.vec4(0.8, 0.65, 0.55, 1.0));
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(upperBodyColor), ANIM_CANVAS_GL.STATIC_DRAW);
+
+    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
+}
+
+function ground() {
+    var groundColor = [];
+    var s = scale4(groundWidth, groundHeight, groundWidth);
+    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * groundHeight, 0.0), s);
+    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
+
+    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
+    for (let i = 0; i < 36; i++)
+        groundColor.push(MV.vec4(0.0, 1.0, 0.0, 0.5));
+
+    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(groundColor), ANIM_CANVAS_GL.STATIC_DRAW);
 
     ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
 }
