@@ -138,7 +138,7 @@ var UpperArm = 2;
 var UpperArm2 = 3;
 
 
-var theta = [45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var theta = [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var thetaX = [0, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var thetaY = [0, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var thetaZ = [0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -293,8 +293,8 @@ function render() {
 
 
     modelViewMatrix = MV.rotate(20, 1, 0, 0);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(theta[lowerBodyId], 0, 1, 0));
-
+    let completeRotation = 360 * theta[lowerBodyId] / 100;
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotation, 0, 1, 0));
     lowerBody();
 
     stack.push(modelViewMatrix);
