@@ -209,7 +209,7 @@ function initAnimCanvas() {
     if (!ANIM_CANVAS_GL) { alert("WebGL isn't available"); }
 
     ANIM_CANVAS_GL.viewport(0, 0, ANIM_CANVAS.clientWidth, ANIM_CANVAS.clientHeight);
-    ANIM_CANVAS_GL.clearColor(0.8, 0.8, 0.8, 1.0);
+    ANIM_CANVAS_GL.clearColor(0.4, 0.4, 0.4, 1.0);
     ANIM_CANVAS_GL.enable(ANIM_CANVAS_GL.DEPTH_TEST);
 
     /*****  Load shaders and initialize attribute buffers *****/
@@ -274,6 +274,12 @@ function initAnimCanvas() {
         projectionMatrix = MV.ortho(-a, a, -a, a, -a, a);
         ANIM_CANVAS_GL.uniformMatrix4fv(ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"), false, MV.flatten(projectionMatrix));
         
+    });
+
+    ANIM_CANVAS.addEventListener("mousedown", function (event: MouseEvent) {
+
+
+
     });
 
 
@@ -784,7 +790,7 @@ function upperBody() {
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
-        upperBodyColor.push(MV.vec4(0.8, 0.65, 0.55, 1.0));
+        upperBodyColor.push(MV.vec4(0.0, 0.0, 0.35, 1.0));
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(upperBodyColor), ANIM_CANVAS_GL.STATIC_DRAW);
 
@@ -800,7 +806,7 @@ function ground() {
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
-        groundColor.push(MV.vec4(0.0, 1.0, 0.0, 0.5));
+        groundColor.push(MV.vec4(0.03, 0.2, 0.0, 1.0));
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(groundColor), ANIM_CANVAS_GL.STATIC_DRAW);
 
