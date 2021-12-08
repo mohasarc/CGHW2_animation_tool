@@ -8,24 +8,49 @@ import { animShaders } from '../shaders';
 import { StateManager } from "../util/StateManager";
 
 import importedModel from './model.json';
-const model: HierarchicalModel = importedModel;
+
 // Global variables
+const MODEL: HierarchicalModel = importedModel;
 let ANIM_CANVAS: any;
 let ANIM_CANVAS_GL: WebGLRenderingContext;
 let WEBGL_PROGRAM: any;
-// ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-var NumVertices = 36; //(6 faces)(2 trianANIM_CANVAS_GLes/face)(3 vertices/trianANIM_CANVAS_GLe)
+const NumVertices = 36; //(6 faces)(2 trianANIM_CANVAS_GLes/face)(3 vertices/trianANIM_CANVAS_GLe)
+const points: any[] = [];
+const colors: any[] = [];
+const stack: any[] = [];
+var vertices = [
+    MV.vec4( -0.5, -0.5,  0.5, 1.0 ),
+    MV.vec4( -0.5,  0.5,  0.5, 1.0 ),
+    MV.vec4(  0.5,  0.5,  0.5, 1.0 ),
+    MV.vec4(  0.5, -0.5,  0.5, 1.0 ),
+    MV.vec4( -0.5, -0.5, -0.5, 1.0 ),
+    MV.vec4( -0.5,  0.5, -0.5, 1.0 ),
+    MV.vec4(  0.5,  0.5, -0.5, 1.0 ),
+    MV.vec4(  0.5, -0.5, -0.5, 1.0 )
+];
 
-var points: any[] = [];
-var colors: any[] = [];
+// RGBA colors
+var vertexColors = [
+    MV.vec4(0.0, 0.0, 0.0, 1.0),  // black
+    MV.vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
+    MV.vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
+    MV.vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
+    MV.vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
+    MV.vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
+    MV.vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
+    MV.vec4( 0.0, 1.0, 1.0, 1.0 )   // cyan
+];
 
-var stack: any[] = [];
-
-var theta = [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var bodyPart: string = '';
+let MODEL_VIEW_MATRIX: any;
+let PROJECTION_MATRIX: any;
+let modelViewMatrixLoc: any;
+let vBuffer, cBuffer: WebGLBuffer|null;
 
 export interface HierarchicalModel {
     name: string,
     values: {
+        anim: boolean,
         rx: number[], // relative to parent - values between 0 - 1
         ry: number[],
         rz: number[],
@@ -43,79 +68,7 @@ export interface HierarchicalModel {
     children?: HierarchicalModel[],
 }
 
-StateManager.getInstance().setState('model', model);
-
-var vertices = [
-    MV.vec4( -0.5, -0.5,  0.5, 1.0 ),
-    MV.vec4( -0.5,  0.5,  0.5, 1.0 ),
-    MV.vec4(  0.5,  0.5,  0.5, 1.0 ),
-    MV.vec4(  0.5, -0.5,  0.5, 1.0 ),
-    MV.vec4( -0.5, -0.5, -0.5, 1.0 ),
-    MV.vec4( -0.5,  0.5, -0.5, 1.0 ),
-    MV.vec4(  0.5,  0.5, -0.5, 1.0 ),
-    MV.vec4(  0.5, -0.5, -0.5, 1.0 )
-];
-
-// RGBA colors
-var vertexColors = [
-    
-    MV.vec4(0.0, 0.0, 0.0, 1.0),  // black
-    MV.vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
-    MV.vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
-    MV.vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
-    MV.vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
-    MV.vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
-    MV.vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
-    MV.vec4( 0.0, 1.0, 1.0, 1.0 )   // cyan
-
-];
-
-var bodyPart: string = '';
-
-// Shader transformation matrices
-var modelViewMatrix: any, projectionMatrix;
-
-var theta = [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-var modelViewMatrixLoc: any;
-
-var vBuffer, cBuffer: WebGLBuffer|null;
-
-
-function quad(a: number, b: number, c: number, d: number) {
-    colors.push(vertexColors[a]);
-    points.push(vertices[a]); 
-    colors.push(vertexColors[a]); 
-    points.push(vertices[b]); 
-    colors.push(vertexColors[a]); 
-    points.push(vertices[c]);
-    colors.push(vertexColors[a]);
-    points.push(vertices[a]);
-    colors.push(vertexColors[a]);
-    points.push(vertices[c]); 
-    colors.push(vertexColors[a]); 
-    points.push(vertices[d]); 
-}
-
-function colorCube() {
-    quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
-    quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
-}
-
-// Remmove when scale in MV.js supports scale matrices
-function scale4(a: number, b: number, c: number) {
-   var result = MV.mat4();
-   result[0][0] = a;
-   result[1][1] = b;
-   result[2][2] = c;
-   return result;
-}
-
-// ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+StateManager.getInstance().setState('model', MODEL);
 
 export default function AnimArea() {
     useEffect(initAnimCanvas);
@@ -151,7 +104,6 @@ function initAnimCanvas() {
     //  Load shaders and initialize attribute buffers
     
     colorCube();
-
    
     // Create and initialize  buffer objects
     vBuffer = ANIM_CANVAS_GL.createBuffer();
@@ -171,34 +123,31 @@ function initAnimCanvas() {
     ANIM_CANVAS_GL.enableVertexAttribArray( vColor );
 
     StateManager.getInstance().subscribe('slider-1', () => {
-        theta[0] = StateManager.getInstance().getState('slider-1');
     });
 
     StateManager.getInstance().subscribe('slider-2', () => {
-        const newTheta = StateManager.getInstance().getState('slider-2') * 10;
-        changeThetaX(model, newTheta, bodyPart);
+        const newTheta = StateManager.getInstance().getState('slider-2') * 30;
+        changeThetaX(MODEL, newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-3', () => {
-        const newTheta = StateManager.getInstance().getState('slider-3') * 10;
-        changeThetaY(model, newTheta, bodyPart);
+        const newTheta = StateManager.getInstance().getState('slider-3') * 30;
+        changeThetaY(MODEL, newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-4', () => {
-        const newTheta = StateManager.getInstance().getState('slider-4') * 10;
-
-        console.log('the theta:', newTheta);
-        changeThetaZ(model, newTheta, bodyPart);
+        const newTheta = StateManager.getInstance().getState('slider-4') * 30;
+        changeThetaZ(MODEL, newTheta, bodyPart);
     });
 
-    function changeThetaX(model: HierarchicalModel, newTheta: number, name: string) {
-        if (model.name === name) {
-            model.values.thetaX[0] = newTheta;
+    function changeThetaX(MODEL: HierarchicalModel, newTheta: number, name: string) {
+        if (MODEL.name === name) {
+            MODEL.values.thetaX[0] = newTheta;
             return true;
         }
 
-        if (model.children) {            
-            for(let child of model.children) {
+        if (MODEL.children) {            
+            for(let child of MODEL.children) {
                 if (changeThetaX(child, newTheta, name)) {
                     return true;
                 }
@@ -208,14 +157,14 @@ function initAnimCanvas() {
         return false;
     }
 
-    function changeThetaY(model: HierarchicalModel, newTheta: number, name: string) {
-        if (model.name === name) {
-            model.values.thetaY[0] = newTheta;
+    function changeThetaY(MODEL: HierarchicalModel, newTheta: number, name: string) {
+        if (MODEL.name === name) {
+            MODEL.values.thetaY[0] = newTheta;
             return true;
         }
 
-        if (model.children) {            
-            for(let child of model.children) {
+        if (MODEL.children) {            
+            for(let child of MODEL.children) {
                 if (changeThetaY(child, newTheta, name)) {
                     return true;
                 }
@@ -225,14 +174,14 @@ function initAnimCanvas() {
         return false;
     }
 
-    function changeThetaZ(model: HierarchicalModel, newTheta: number, name: string) {
-        if (model.name === name) {
-            model.values.thetaZ[0] = newTheta;
+    function changeThetaZ(MODEL: HierarchicalModel, newTheta: number, name: string) {
+        if (MODEL.name === name) {
+            MODEL.values.thetaZ[0] = newTheta;
             return true;
         }
 
-        if (model.children) {            
-            for(let child of model.children) {
+        if (MODEL.children) {            
+            for(let child of MODEL.children) {
                 if (changeThetaZ(child, newTheta, name)) {
                     return true;
                 }
@@ -248,7 +197,7 @@ function initAnimCanvas() {
 
     let a = 15;
     let camRotX = 0;
-    let camRotY = 15;
+    let camRotY = 0;
     let camRotZ = 0;
 
     ANIM_CANVAS.addEventListener("wheel", function (event: WheelEvent) {
@@ -267,23 +216,19 @@ function initAnimCanvas() {
             else a--;
         }
 
-        projectionMatrix = MV.ortho(-a, a, -a, a, -a, a);
-        projectionMatrix = MV.mult(projectionMatrix, MV.rotate(camRotX, 1, 0, 0));
-        projectionMatrix = MV.mult(projectionMatrix, MV.rotate(camRotY, 0, 1, 0));
-        projectionMatrix = MV.mult(projectionMatrix, MV.rotate(camRotZ, 0, 0, 1));
-        ANIM_CANVAS_GL.uniformMatrix4fv(ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"), false, MV.flatten(projectionMatrix));        
+        PROJECTION_MATRIX = MV.ortho(-a, a, -a, a, -1000, 1000);
+        PROJECTION_MATRIX = MV.mult(PROJECTION_MATRIX, MV.rotate(camRotX, 1, 0, 0));
+        PROJECTION_MATRIX = MV.mult(PROJECTION_MATRIX, MV.rotate(camRotY, 0, 1, 0));
+        PROJECTION_MATRIX = MV.mult(PROJECTION_MATRIX, MV.rotate(camRotZ, 0, 0, 1));
+        ANIM_CANVAS_GL.uniformMatrix4fv(ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"), false, MV.flatten(PROJECTION_MATRIX));        
     });
 
     ANIM_CANVAS.addEventListener("mousedown", function (event: MouseEvent) {
-
-
-
     });
 
-
     modelViewMatrixLoc = ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "modelViewMatrix");
-    projectionMatrix = MV.ortho(-15, 15, -15, 15, -15, 15);
-    ANIM_CANVAS_GL.uniformMatrix4fv( ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"),  false, MV.flatten(projectionMatrix) );
+    PROJECTION_MATRIX = MV.ortho(-15, 15, -15, 15, -1000, 1000);
+    ANIM_CANVAS_GL.uniformMatrix4fv( ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"),  false, MV.flatten(PROJECTION_MATRIX) );
     console.log(points);
     render();
 }
@@ -292,13 +237,9 @@ function initAnimCanvas() {
  * This function will be called on every fram to calculate what to draw to the frame buffer
  */
 function render() {
-
     ANIM_CANVAS_GL.clear(ANIM_CANVAS_GL.COLOR_BUFFER_BIT | ANIM_CANVAS_GL.DEPTH_BUFFER_BIT);
-
-
-    modelViewMatrix = MV.rotate(20, 1, 0, 0);
-
-    drawHierarchy(model);
+    MODEL_VIEW_MATRIX = MV.rotate(0, 1, 0, 0);
+    drawHierarchy(MODEL);
     requestAnimationFrame(render);
 }
 
@@ -319,15 +260,15 @@ function drawHierarchy(hierarchy: HierarchicalModel) {
     const anchorL = hierarchy.values.anchorZ[0];
     const color = hierarchy.values.color[0];
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(tx, ty, tz));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rotX, 1, 0, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rotY, 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rotZ, 0, 0, 1));
+    MODEL_VIEW_MATRIX = MV.mult(MODEL_VIEW_MATRIX, MV.translate(tx, ty, tz));
+    MODEL_VIEW_MATRIX = MV.mult(MODEL_VIEW_MATRIX, MV.rotate(rotX, 1, 0, 0));
+    MODEL_VIEW_MATRIX = MV.mult(MODEL_VIEW_MATRIX, MV.rotate(rotY, 0, 1, 0));
+    MODEL_VIEW_MATRIX = MV.mult(MODEL_VIEW_MATRIX, MV.rotate(rotZ, 0, 0, 1));
 
     const s = scale4(w, h, l);
     // Specifying the anchor around which rotation will happen. we can have choices for x,y,z as ay,bx,cz so we set a,b,c values
     const instanceMatrix = MV.mult(MV.translate(anchorW * w, anchorH * h, anchorL * l), s); // scale around the center for x, z, but scale upwards for y
-    const t = MV.mult(modelViewMatrix, instanceMatrix);
+    const t = MV.mult(MODEL_VIEW_MATRIX, instanceMatrix);
 
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -339,17 +280,50 @@ function drawHierarchy(hierarchy: HierarchicalModel) {
     
     ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
 
-    stack.push(modelViewMatrix);
+    stack.push(MODEL_VIEW_MATRIX);
 
     if (hierarchy.children !== undefined) {
         hierarchy.children.forEach((child: HierarchicalModel) => {
             if (hierarchy.children) {
                 drawHierarchy(child);
-                modelViewMatrix = stack.pop();
-                stack.push(modelViewMatrix);
+                MODEL_VIEW_MATRIX = stack.pop();
+                stack.push(MODEL_VIEW_MATRIX);
             }
         });
     }
 
     stack.pop();
+}
+
+function quad(a: number, b: number, c: number, d: number) {
+    colors.push(vertexColors[a]);
+    points.push(vertices[a]); 
+    colors.push(vertexColors[a]); 
+    points.push(vertices[b]); 
+    colors.push(vertexColors[a]); 
+    points.push(vertices[c]);
+    colors.push(vertexColors[a]);
+    points.push(vertices[a]);
+    colors.push(vertexColors[a]);
+    points.push(vertices[c]); 
+    colors.push(vertexColors[a]); 
+    points.push(vertices[d]); 
+}
+
+function colorCube() {
+    quad( 1, 0, 3, 2 );
+    quad( 2, 3, 7, 6 );
+    quad( 3, 0, 4, 7 );
+    quad( 6, 5, 1, 2 );
+    quad( 4, 5, 6, 7 );
+    quad( 5, 4, 0, 1 );
+}
+
+// Remmove when scale in MV.js supports scale matrices
+function scale4(a: number, b: number, c: number) {
+   var result = MV.mat4();
+   result[0][0] = a;
+   result[1][1] = b;
+   result[2][2] = c;
+   return result;
 }

@@ -7,7 +7,8 @@ import { HierarchicalModel } from './AnimArea';
  * 
  */
 function traverseModelExtractTitles( theTitles: string[], model: HierarchicalModel ) {
-    theTitles.push(model.name);
+    if (model.values.anim) theTitles.push(model.name);
+
     model.children?.forEach((child) => {
         traverseModelExtractTitles(theTitles, child);
     });

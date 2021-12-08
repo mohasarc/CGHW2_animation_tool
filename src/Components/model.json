@@ -1,6 +1,7 @@
 {
     "name": "Lower Body",
     "values": {
+        "anim": true,
         "rx": [0], 
         "ry": [0],
         "rz": [0],
@@ -19,6 +20,7 @@
         {
             "name": "Upper Body",
             "values": {
+                "anim": true,
                 "rx": [-3.5], 
                 "ry": [0],
                 "rz": [0.0],
@@ -28,8 +30,8 @@
                 "w": [5], 
                 "h": [4], 
                 "l": [4], 
-                "thetaX": [50],
-                "thetaY": [50],
+                "thetaX": [0],
+                "thetaY": [0],
                 "thetaZ": [0],
                 "color": [[0.0, 0.0, 0.35, 1.0]]
             },
@@ -37,6 +39,7 @@
                 {
                     "name": "neck",
                     "values": {
+                        "anim": true,
                         "rx": [0], 
                         "ry": [4],
                         "rz": [0],
@@ -55,6 +58,7 @@
                         {
                             "name": "head",
                             "values": {
+                                "anim": false,
                                 "rx": [0], 
                                 "ry": [0.5],
                                 "rz": [0],
@@ -73,6 +77,7 @@
                                 {
                                     "name": "Left Eye",
                                     "values": {
+                                        "anim": false,
                                         "rx": [-1], 
                                         "ry": [1.5],
                                         "rz": [-0.5],
@@ -91,6 +96,7 @@
                                 {
                                     "name": "Right Eye",
                                     "values": {
+                                        "anim": false,
                                         "rx": [-1], 
                                         "ry": [1.5],
                                         "rz": [0.5],
@@ -109,6 +115,7 @@
                                 {
                                     "name": "nose",
                                     "values": {
+                                        "anim": false,
                                         "rx": [-1], 
                                         "ry": [1],
                                         "rz": [0],
@@ -127,6 +134,7 @@
                                 {
                                     "name": "mouth",
                                     "values": {
+                                        "anim": false,
                                         "rx": [-1], 
                                         "ry": [0.25],
                                         "rz": [0],
@@ -149,6 +157,7 @@
                 {
                     "name": "Left Upper Arm",
                     "values": {
+                        "anim": true,
                         "rx": [0], 
                         "ry": [4],
                         "rz": [2.5],
@@ -167,6 +176,7 @@
                         {
                             "name": "Left Lower Arm",
                             "values": {
+                                "anim": true,
                                 "rx": [0], 
                                 "ry": [-1.5],
                                 "rz": [0],
@@ -185,6 +195,7 @@
                                 {
                                     "name": "Left Hand",
                                     "values": {
+                                        "anim": false,
                                         "rx": [0], 
                                         "ry": [-2],
                                         "rz": [0],
@@ -207,9 +218,10 @@
                 {
                     "name": "Right Upper Arm",
                     "values": {
+                        "anim": true,
                         "rx": [0], 
-                        "ry": [-0.5],
-                        "rz": [0],
+                        "ry": [4],
+                        "rz": [-2.5],
                         "anchorX": [0],
                         "anchorY": [-0.5],
                         "anchorZ": [0],
@@ -225,6 +237,7 @@
                         {
                             "name": "Right Lower Arm",
                             "values": {
+                                "anim": true,
                                 "rx": [0], 
                                 "ry": [-1.5],
                                 "rz": [0],
@@ -243,8 +256,9 @@
                                 {
                                     "name": "Right Hand",
                                     "values": {
+                                        "anim": false,
                                         "rx": [0], 
-                                        "ry": [-1.5],
+                                        "ry": [-2],
                                         "rz": [0],
                                         "anchorX": [0],
                                         "anchorY": [-0.5],
@@ -267,8 +281,9 @@
         {
             "name": "Left Front Upper Leg",
             "values": {
+                "anim": true,
                 "rx": [-3], 
-                "ry": [-3.5],
+                "ry": [-5],
                 "rz": [1.5],
                 "anchorX": [0],
                 "anchorY": [-0.5],
@@ -285,6 +300,7 @@
                 {
                     "name": "Left Front Lower Leg",
                     "values": {
+                        "anim": true,
                         "rx": [0], 
                         "ry": [-2],
                         "rz": [0],
@@ -305,8 +321,9 @@
         {
             "name": "Right Front Upper Leg",
             "values": {
+                "anim": true,
                 "rx": [-3], 
-                "ry": [-3.5],
+                "ry": [-5],
                 "rz": [-1.5],
                 "anchorX": [0],
                 "anchorY": [-0.5],
@@ -323,6 +340,7 @@
                 {
                     "name": "Right Front Lower Leg",
                     "values": {
+                        "anim": true,
                         "rx": [0], 
                         "ry": [-2],
                         "rz": [0],
@@ -343,8 +361,9 @@
         {
             "name": "Left Back Upper Leg",
             "values": {
+                "anim": true,
                 "rx": [3], 
-                "ry": [-3.5],
+                "ry": [-5],
                 "rz": [1.5],
                 "anchorX": [0],
                 "anchorY": [-0.5],
@@ -361,6 +380,7 @@
                 {
                     "name": "Left Back Lower Leg",
                     "values": {
+                        "anim": true,
                         "rx": [0], 
                         "ry": [-2],
                         "rz": [0],
@@ -381,8 +401,9 @@
         {
             "name": "Right Back Upper Leg",
             "values": {
+                "anim": true,
                 "rx": [3], 
-                "ry": [-3.5],
+                "ry": [-5],
                 "rz": [-1.5],
                 "anchorX": [0],
                 "anchorY": [-0.5],
@@ -399,6 +420,7 @@
                 {
                     "name": "Right Back Lower Leg",
                     "values": {
+                        "anim": true,
                         "rx": [0], 
                         "ry": [-2],
                         "rz": [0],
