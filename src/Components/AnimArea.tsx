@@ -22,6 +22,90 @@ var headPoints: any[] = [];
 
 var sliderInfo = 0;
 
+const model = {
+    body: {
+        values: {
+            rx: [], // relative to parent - values between 0 - 1
+            ry: [],
+            rz: [],
+            w: [10],
+            h: [20],
+            thetaX: [10, 15, 20, 25],
+            thetaY: [20, 15, 10, 5],
+            thetaZ: [40, 60, 100, 120],
+            color: [],
+        },
+        children: {
+            values: {
+
+            },
+            children: {
+                values: {
+
+                },
+                children: {
+                    neck: {
+                        values: {
+                        },
+                        children: {
+                            head: {
+                                values: {
+
+                                },
+                                children: {
+                                    leftEye: {
+                                        values: {}
+                                    },
+                                    rightEye: {
+                                        values: {}
+                                    },
+                                    nose: {
+                                        values: {}
+                                    },
+                                    mouth: {
+                                        values: {}
+                                    },
+                                }
+                            },
+                        }
+                    },
+                    lowerBody: {
+                        values: {
+                        },
+                        children: {
+                            leftUpperArm: {
+                                values: {},
+                                children: {
+                                    leftLowerArm: {
+                                        values: {},
+                                        children: {
+                                            leftHand: {
+                                                values: {}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            rightUpperArm: {
+                                values: {},
+                                children: {
+                                    rightLowerArm: {
+                                        values: {},
+                                        children: {
+                                            rightHand: {
+                                                values: {},
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }            
+                    }
+                }
+            }
+        }
+    }
+}
 
 var vertices = [
     MV.vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -59,7 +143,7 @@ var head1Id = 1;
 var head2Id = 14;
 
 //Neck
-var neckHeight = 0.5;
+var neckHeight = 12.5;
 var neckWidth = 1.0;
 
 //Shoulder
@@ -266,6 +350,7 @@ function initAnimCanvas() {
     });
     var a = 15;
     ANIM_CANVAS.addEventListener("wheel", function (event: WheelEvent) {
+        event.preventDefault();
         if (event.deltaY > 0) {
             a--;
         } else {
@@ -307,12 +392,12 @@ function render() {
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationX, 1, 0, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationY, 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationZ, 0, 0, 1));
-    
+
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotation, 0, 1, 0));
     lowerBody();
 
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-lowerBodyWidth / 2 + 1.5, -lowerBodyHeight/2 + 0.65 * lowerBodyHeight, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-lowerBodyHeight*0.90, lowerBodyHeight * 0.5, 0.0));
     let upperBodyXRotation = 90 * thetaX[upperBodyId] / 100;
     let upperBodyYRotation = 90 * thetaY[upperBodyId] / 100;
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(upperBodyXRotation-45, 1, 0, 0));
@@ -324,9 +409,7 @@ function render() {
     modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, upperBodyHeight, 0.0));
     neck();
 
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, upperBodyHeight + neckHeight, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, neckHeight/2, 0.0));
     let headXRotation = 180 * thetaX[headId] / 100;
     let headYRotation = 180 * thetaY[headId] / 100;
     let headZRotation = 100 * thetaZ[headId] / 100;
@@ -336,34 +419,34 @@ function render() {
     head();
 
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-headWidth/2, headHeight/2 + 0.2, 0.5));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-1, 0.5, 0.5));
     rightEye();
 
     modelViewMatrix = stack.pop();
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-headWidth / 2, headHeight / 2 + 0.2, -0.5));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-1, 0.5, -0.5));
     leftEye();
 
     modelViewMatrix = stack.pop();
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-headWidth / 2, headHeight / 2 , 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-1, 0.01 , 0.0));
     nose();
 
     modelViewMatrix = stack.pop();
     modelViewMatrix = stack.pop();
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, upperBodyHeight - shoulderHeight, upperBodyWidth / 2 + upperArmWidth / 2));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, 3.2, 3));
     shoulder();
 
     let rightUpperArmXRotation = 180 * thetaX[rightUpperArmId] / 100;
     let rightUpperArmZRotation = 180 * thetaZ[rightUpperArmId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, shoulderWidth/2, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -0.5, 0.0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rightUpperArmXRotation, -1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightUpperArmId], 0, -1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rightUpperArmZRotation, 0, 0, -1));
     rightUpperArm();
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -upperArmHeight+0.5, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -1.5, 0.0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightLowerArmId], -1, 0, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightLowerArmId], 0, -1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightLowerArmId], 0, 0, -1));
@@ -372,18 +455,18 @@ function render() {
     //modelViewMatrix = stack.pop();
     modelViewMatrix = stack.pop();
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, upperBodyHeight - shoulderHeight, -upperBodyWidth / 2 - upperArmWidth / 2));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, 3.2, -3));
     shoulder();
 
     let leftUpperArmXRotation = 180 * thetaX[leftUpperArmId] / 100;
     let leftUpperArmZRotation = 180 * thetaZ[leftUpperArmId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, shoulderWidth / 2, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -0.5, 0.0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(leftUpperArmXRotation, 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(-thetaY[leftUpperArmId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(-leftUpperArmZRotation, 0, 0, 1));
     leftUpperArm();
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -upperArmHeight + 0.5, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -1.5, 0.0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftLowerArmId], 1, 0, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftLowerArmId], 0, -1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftLowerArmId], 0, 0, -1));
@@ -393,13 +476,13 @@ function render() {
     modelViewMatrix = stack.pop();
     modelViewMatrix = stack.pop();
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-lowerBodyWidth / 2 + upperLegWitdh * 3, -lowerBodyHeight + 0.5 * lowerBodyHeight, lowerBodyHeight / 2 - upperLegWitdh / 2));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-3, -3.5, 1.5));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftFrontUpperLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftFrontUpperLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftFrontUpperLegId], 0, 0, 1));
     leftFrontUpperLeg();
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -lowerLegHeight, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftFrontLowerLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftFrontLowerLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftFrontLowerLegId], 0, 0, 1));
@@ -408,13 +491,13 @@ function render() {
     modelViewMatrix = stack.pop();
     stack.push(modelViewMatrix);
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-lowerBodyWidth / 2 + upperLegWitdh * 3, -lowerBodyHeight + 0.5 * lowerBodyHeight, -lowerBodyHeight / 2 + upperLegWitdh / 2));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-3, -3.5, -1.5));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightFrontUpperLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightFrontUpperLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightFrontUpperLegId], 0, 0, 1));
     rightFrontUpperLeg();
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -lowerLegHeight, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
    // modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightFrontLowerLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightFrontLowerLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightFrontLowerLegId], 0, 0, 1));
@@ -422,26 +505,26 @@ function render() {
 
     modelViewMatrix = stack.pop();
     stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(lowerBodyWidth / 2 - upperLegWitdh * 3, -lowerBodyHeight + 0.5 * lowerBodyHeight, lowerBodyHeight / 2 - upperLegWitdh / 2));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(3, -3.5, 1.5));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftBackUpperLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftBackUpperLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftBackUpperLegId], 0, 0, 1));
     leftBackUpperLeg();
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -lowerLegHeight, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftBackLowerLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftBackLowerLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftBackLowerLegId], 0, 0, 1));
     leftBackLowerLeg();
     
     modelViewMatrix = stack.pop();
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(lowerBodyWidth / 2 - upperLegWitdh * 3, -lowerBodyHeight + 0.5 * lowerBodyHeight, -lowerBodyHeight / 2 + upperLegWitdh / 2));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(3, -3.5, -1.5));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightBackUpperLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightBackUpperLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightBackUpperLegId], 0, 0, 1));
     rightBackUpperLeg();
 
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -lowerLegHeight, 0.0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightBackLowerLegId], 1, 0, 0));
     //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightBackLowerLegId], 0, 1, 0));
     modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightBackLowerLegId], 0, 0, 1));
@@ -458,7 +541,7 @@ function lowerBody() {
     var lowerColor = [];
 
     var s = scale4(lowerBodyWidth, lowerBodyHeight, lowerBodyHeight);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.33* lowerBodyHeight, 0.0), s);
+    var instanceMatrix = MV.mult(MV.translate(0.0, -0.0* lowerBodyHeight, 0.0), s);
     var t = MV.mult(modelViewMatrix, instanceMatrix);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -467,7 +550,6 @@ function lowerBody() {
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(lowerColor), ANIM_CANVAS_GL.STATIC_DRAW);
     ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-
 }
 
 
@@ -475,8 +557,7 @@ function neck() {
 
     var headColor = [];
     var s = scale4(neckWidth, neckHeight, neckWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * neckHeight, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
@@ -489,8 +570,7 @@ function shoulder() {
 
     var headColor = [];
     var s = scale4(shoulderWidth, shoulderHeight, shoulderWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * shoulderHeight, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
     for (let i = 0; i < 36; i++)
@@ -504,7 +584,7 @@ function head() {
 
     var headColor = [];
     var s = scale4(headWidth, headHeight, headWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * headHeight, 0.0), s);
+    var instanceMatrix = MV.mult(MV.translate(0.0, 0.0 * headHeight, 0.0), s);
     var t = MV.mult(modelViewMatrix, instanceMatrix);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -519,8 +599,7 @@ function rightEye() {
 
     var eyeColor = [];
     var s = scale4(eye, eye, eye);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * eye, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
 
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -534,8 +613,7 @@ function leftEye() {
 
     var eyeColor = [];
     var s = scale4(eye, eye, eye);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * eye, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
 
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -550,8 +628,7 @@ function nose() {
 
     var noseColor = [];
     var s = scale4(noseWidth, noseHeight, noseWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * noseHeight, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
 
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
@@ -568,9 +645,9 @@ function leftFrontUpperLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -587,9 +664,9 @@ function leftFrontLowerLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -605,9 +682,9 @@ function rightFrontUpperLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -623,9 +700,9 @@ function rightFrontLowerLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -642,9 +719,9 @@ function leftBackUpperLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -660,9 +737,9 @@ function leftBackLowerLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -678,9 +755,9 @@ function rightBackUpperLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -696,9 +773,9 @@ function rightBackLowerLeg() {
     var legColor = [];
 
     var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -714,10 +791,10 @@ function rightUpperArm() {
     var armColor = [];
 
     var s = scale4(upperArmWidth, upperArmHeight, upperArmWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperArmHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperArmHeight, 0.0), s);
     //instanceMatrix = MV.mult(MV.rotate(180,0,0,1), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
@@ -733,10 +810,10 @@ function rightLowerArm() {
     var armColor = [];
 
     var s = scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerArmHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerArmHeight, 0.0), s);
     //instanceMatrix = MV.mult(MV.rotate(180, 0, 0, 1), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
 
@@ -753,10 +830,10 @@ function leftUpperArm() {
     var armColor = [];
 
     var s = scale4(upperArmWidth, upperArmHeight, upperArmWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperArmHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperArmHeight, 0.0), s);
     //instanceMatrix = MV.mult(MV.rotate(180, 0, 0, 1), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
 
@@ -773,10 +850,10 @@ function leftLowerArm() {
     var armColor = [];
 
     var s = scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerArmHeight, 0.0), s);
+    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerArmHeight, 0.0), s);
     //instanceMatrix = MV.mult(MV.rotate(180, 0, 0, 1), s);
 
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    var t = MV.mult(modelViewMatrix, s);
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
 
 
