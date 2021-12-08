@@ -7,6 +7,8 @@ import * as UTILS from '../Common/webgl-utils';
 import { animShaders } from '../shaders';
 import { StateManager } from "../util/StateManager";
 
+import importedModel from './model.json';
+const model: HierarchicalModel = importedModel;
 // Global variables
 let ANIM_CANVAS: any;
 let ANIM_CANVAS_GL: WebGLRenderingContext;
@@ -18,94 +20,30 @@ var points: any[] = [];
 var colors: any[] = [];
 
 var stack: any[] = [];
-var headPoints: any[] = [];
 
-var sliderInfo = 0;
+var theta = [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-const model = {
-    body: {
-        values: {
-            rx: [], // relative to parent - values between 0 - 1
-            ry: [],
-            rz: [],
-            w: [10],
-            h: [20],
-            thetaX: [10, 15, 20, 25],
-            thetaY: [20, 15, 10, 5],
-            thetaZ: [40, 60, 100, 120],
-            color: [],
-        },
-        children: {
-            values: {
-
-            },
-            children: {
-                values: {
-
-                },
-                children: {
-                    neck: {
-                        values: {
-                        },
-                        children: {
-                            head: {
-                                values: {
-
-                                },
-                                children: {
-                                    leftEye: {
-                                        values: {}
-                                    },
-                                    rightEye: {
-                                        values: {}
-                                    },
-                                    nose: {
-                                        values: {}
-                                    },
-                                    mouth: {
-                                        values: {}
-                                    },
-                                }
-                            },
-                        }
-                    },
-                    lowerBody: {
-                        values: {
-                        },
-                        children: {
-                            leftUpperArm: {
-                                values: {},
-                                children: {
-                                    leftLowerArm: {
-                                        values: {},
-                                        children: {
-                                            leftHand: {
-                                                values: {}
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            rightUpperArm: {
-                                values: {},
-                                children: {
-                                    rightLowerArm: {
-                                        values: {},
-                                        children: {
-                                            rightHand: {
-                                                values: {},
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                        }            
-                    }
-                }
-            }
-        }
-    }
+export interface HierarchicalModel {
+    name: string,
+    values: {
+        rx: number[], // relative to parent - values between 0 - 1
+        ry: number[],
+        rz: number[],
+        anchorX: number[],
+        anchorY: number[],
+        anchorZ: number[],
+        w: number[], // along x 
+        h: number[], // along y
+        l: number[], // along z
+        thetaX: number[],
+        thetaY: number[],
+        thetaZ: number[],
+        color: number[][],
+    },
+    children?: HierarchicalModel[],
 }
+
+StateManager.getInstance().setState('model', model);
 
 var vertices = [
     MV.vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -132,102 +70,12 @@ var vertexColors = [
 
 ];
 
-var bodyPart = 0;
-
-
-//Body part id's
-var upperBodyId = 1;
-var lowerBodyId = 0;
-var headId = 2;
-var head1Id = 1;
-var head2Id = 14;
-
-//Neck
-var neckHeight = 12.5;
-var neckWidth = 1.0;
-
-//Shoulder
-var shoulderHeight = 1.0;
-var shoulderWidth = 1.0;
-
-//Arms
-var rightUpperArmId = 3;
-var rightLowerArmId = 4;
-var leftUpperArmId = 5;
-var leftLowerArmId = 6;
-
-//Front legs
-var leftFrontUpperLegId = 7;
-var leftFrontLowerLegId = 8;
-var rightFrontUpperLegId = 9;
-var rightFrontLowerLegId = 10;
-
-//back legs
-var leftBackUpperLegId = 11;
-var leftBackLowerLegId = 12;
-var rightBackUpperLegId = 13;
-var rightBackLowerLegId = 14;
-
-
-//Measurements
-var upperBodyHeight = 4.0;
-var upperBodyWidth = 5.0;
-
-var lowerBodyHeight = 5.0;
-var lowerBodyWidth = 12.0;
-
-var headHeight = 2.0;
-var headWidth = 2.0;
-
-
-//Arms
-var upperArmHeight = 2.0;
-var upperArmWidth = 1.0;
-var lowerArmHeight = 2.0;
-var lowerArmWidth = 1.0;
-
-
-//Front legs
-var upperLegHeight = 2.0;
-var upperLegWitdh = 1.0;
-var lowerLegHeight = 3.0;
-var lowerLegWidth = 3.0;
-
-//Face mesaurements
-var eye = 0.25;
-var noseHeight = 0.5;
-var noseWidth = 0.25;
-
-var groundHeight = 2.0;
-var groundWidth = 20.0;
-
-
-// Parameters controlling the size of the Robot's arm
-var BASE_HEIGHT      = 2.0;
-var BASE_WIDTH       = 5.0;
-var LOWER_ARM_HEIGHT = 3.0;
-var LOWER_ARM_WIDTH  = 0.5;
-var UPPER_ARM_HEIGHT = 5.0;
-var UPPER_ARM_WIDTH = 0.5;
-var UPPER_ARM2_HEIGHT = 5.0;
-var UPPER_ARM2_WIDTH  = 0.5;
+var bodyPart: string = '';
 
 // Shader transformation matrices
 var modelViewMatrix: any, projectionMatrix;
 
-// Array of rotation anANIM_CANVAS_GLes (in degrees) for each rotation axis
-var Base = 0;
-var LowerArm = 1;
-var UpperArm = 2;
-var UpperArm2 = 3;
-
-
 var theta = [15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var thetaX = [10, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var thetaY = [0, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var thetaZ = [0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-var anANIM_CANVAS_GLe = 0;
 
 var modelViewMatrixLoc: any;
 
@@ -324,41 +172,106 @@ function initAnimCanvas() {
 
     StateManager.getInstance().subscribe('slider-1', () => {
         theta[0] = StateManager.getInstance().getState('slider-1');
-        sliderInfo = 0;
     });
 
     StateManager.getInstance().subscribe('slider-2', () => {
-        thetaX[bodyPart] = StateManager.getInstance().getState('slider-2');
-        sliderInfo = 1;
-
+        const newTheta = StateManager.getInstance().getState('slider-2') * 10;
+        changeThetaX(model, newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-3', () => {
-        thetaY[bodyPart] = StateManager.getInstance().getState('slider-3');
-        sliderInfo = 2;
-
+        const newTheta = StateManager.getInstance().getState('slider-3') * 10;
+        changeThetaY(model, newTheta, bodyPart);
     });
+
     StateManager.getInstance().subscribe('slider-4', () => {
-        thetaZ[bodyPart] = StateManager.getInstance().getState('slider-4');
-        sliderInfo = 3;
+        const newTheta = StateManager.getInstance().getState('slider-4') * 10;
 
+        console.log('the theta:', newTheta);
+        changeThetaZ(model, newTheta, bodyPart);
     });
+
+    function changeThetaX(model: HierarchicalModel, newTheta: number, name: string) {
+        if (model.name === name) {
+            model.values.thetaX[0] = newTheta;
+            return true;
+        }
+
+        if (model.children) {            
+            for(let child of model.children) {
+                if (changeThetaX(child, newTheta, name)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function changeThetaY(model: HierarchicalModel, newTheta: number, name: string) {
+        if (model.name === name) {
+            model.values.thetaY[0] = newTheta;
+            return true;
+        }
+
+        if (model.children) {            
+            for(let child of model.children) {
+                if (changeThetaY(child, newTheta, name)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function changeThetaZ(model: HierarchicalModel, newTheta: number, name: string) {
+        if (model.name === name) {
+            model.values.thetaZ[0] = newTheta;
+            return true;
+        }
+
+        if (model.children) {            
+            for(let child of model.children) {
+                if (changeThetaZ(child, newTheta, name)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     StateManager.getInstance().subscribe('buttons', () => {
         bodyPart = StateManager.getInstance().getState('buttons');
-        //console.log(bodyPart);
-
     });
-    var a = 15;
+
+    let a = 15;
+    let camRotX = 0;
+    let camRotY = 15;
+    let camRotZ = 0;
+
     ANIM_CANVAS.addEventListener("wheel", function (event: WheelEvent) {
-        event.preventDefault();
-        if (event.deltaY > 0) {
-            a--;
+        event.preventDefault();        
+        if (event.shiftKey) {
+            if (event.deltaY > 0) camRotX ++;
+            else camRotX --;
+        } else if (event.altKey) {
+            if (event.deltaY > 0) camRotY ++;
+            else camRotY --;
+        } else if (event.ctrlKey) {
+            if (event.deltaY > 0) camRotZ ++;
+            else camRotZ --;
         } else {
-            a++;
+            if (event.deltaY > 0) a++;
+            else a--;
         }
+
         projectionMatrix = MV.ortho(-a, a, -a, a, -a, a);
-        ANIM_CANVAS_GL.uniformMatrix4fv(ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"), false, MV.flatten(projectionMatrix));
-        
+        projectionMatrix = MV.mult(projectionMatrix, MV.rotate(camRotX, 1, 0, 0));
+        projectionMatrix = MV.mult(projectionMatrix, MV.rotate(camRotY, 0, 1, 0));
+        projectionMatrix = MV.mult(projectionMatrix, MV.rotate(camRotZ, 0, 0, 1));
+        ANIM_CANVAS_GL.uniformMatrix4fv(ANIM_CANVAS_GL.getUniformLocation(WEBGL_PROGRAM, "projectionMatrix"), false, MV.flatten(projectionMatrix));        
     });
 
     ANIM_CANVAS.addEventListener("mousedown", function (event: MouseEvent) {
@@ -384,519 +297,59 @@ function render() {
 
 
     modelViewMatrix = MV.rotate(20, 1, 0, 0);
-    let completeRotation = 360 * theta[lowerBodyId] / 100;
-    
-    let completeRotationX = 360 * thetaX[lowerBodyId] / 100;
-    let completeRotationY = 360 * thetaY[lowerBodyId] / 100;
-    let completeRotationZ = 360 * thetaZ[lowerBodyId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationX, 1, 0, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationY, 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotationZ, 0, 0, 1));
 
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(completeRotation, 0, 1, 0));
-    lowerBody();
-
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-lowerBodyHeight*0.90, lowerBodyHeight * 0.5, 0.0));
-    let upperBodyXRotation = 90 * thetaX[upperBodyId] / 100;
-    let upperBodyYRotation = 90 * thetaY[upperBodyId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(upperBodyXRotation-45, 1, 0, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(upperBodyYRotation -45, 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[upperBodyId], 0, 0, 1));
-    upperBody();
-
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, upperBodyHeight, 0.0));
-    neck();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, neckHeight/2, 0.0));
-    let headXRotation = 180 * thetaX[headId] / 100;
-    let headYRotation = 180 * thetaY[headId] / 100;
-    let headZRotation = 100 * thetaZ[headId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(headXRotation-90, 1, 0, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(headYRotation - 90, 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(headZRotation - 45, 0, 0, 1));
-    head();
-
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-1, 0.5, 0.5));
-    rightEye();
-
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-1, 0.5, -0.5));
-    leftEye();
-
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-1, 0.01 , 0.0));
-    nose();
-
-    modelViewMatrix = stack.pop();
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, 3.2, 3));
-    shoulder();
-
-    let rightUpperArmXRotation = 180 * thetaX[rightUpperArmId] / 100;
-    let rightUpperArmZRotation = 180 * thetaZ[rightUpperArmId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -0.5, 0.0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rightUpperArmXRotation, -1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightUpperArmId], 0, -1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rightUpperArmZRotation, 0, 0, -1));
-    rightUpperArm();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -1.5, 0.0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightLowerArmId], -1, 0, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightLowerArmId], 0, -1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightLowerArmId], 0, 0, -1));
-    rightLowerArm();
-
-    //modelViewMatrix = stack.pop();
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, 3.2, -3));
-    shoulder();
-
-    let leftUpperArmXRotation = 180 * thetaX[leftUpperArmId] / 100;
-    let leftUpperArmZRotation = 180 * thetaZ[leftUpperArmId] / 100;
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -0.5, 0.0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(leftUpperArmXRotation, 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(-thetaY[leftUpperArmId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(-leftUpperArmZRotation, 0, 0, 1));
-    leftUpperArm();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -1.5, 0.0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftLowerArmId], 1, 0, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftLowerArmId], 0, -1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftLowerArmId], 0, 0, -1));
-    leftLowerArm();
-
-
-    modelViewMatrix = stack.pop();
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-3, -3.5, 1.5));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftFrontUpperLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftFrontUpperLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftFrontUpperLegId], 0, 0, 1));
-    leftFrontUpperLeg();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftFrontLowerLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftFrontLowerLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftFrontLowerLegId], 0, 0, 1));
-    leftFrontLowerLeg();
-
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-3, -3.5, -1.5));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightFrontUpperLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightFrontUpperLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightFrontUpperLegId], 0, 0, 1));
-    rightFrontUpperLeg();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
-   // modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightFrontLowerLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightFrontLowerLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightFrontLowerLegId], 0, 0, 1));
-    rightFrontLowerLeg();
-
-    modelViewMatrix = stack.pop();
-    stack.push(modelViewMatrix);
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(3, -3.5, 1.5));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftBackUpperLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftBackUpperLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftBackUpperLegId], 0, 0, 1));
-    leftBackUpperLeg();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[leftBackLowerLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[leftBackLowerLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[leftBackLowerLegId], 0, 0, 1));
-    leftBackLowerLeg();
-    
-    modelViewMatrix = stack.pop();
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(3, -3.5, -1.5));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightBackUpperLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightBackUpperLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightBackUpperLegId], 0, 0, 1));
-    rightBackUpperLeg();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(0.0, -2, 0.0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaX[rightBackLowerLegId], 1, 0, 0));
-    //modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaY[rightBackLowerLegId], 0, 1, 0));
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(thetaZ[rightBackLowerLegId], 0, 0, 1));
-    rightBackLowerLeg();
-
-    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(-lowerBodyWidth / 2 + upperLegWitdh * 3, -2 * groundHeight, lowerBodyHeight / 2 - upperLegWitdh / 2));
-    ground();
-    
+    drawHierarchy(model);
     requestAnimationFrame(render);
 }
 
+function drawHierarchy(hierarchy: HierarchicalModel) {
+    const upperBodyColor = [];
 
-function lowerBody() {
-    var lowerColor = [];
+    const rotX = hierarchy.values.thetaX[0] / 100;
+    const rotY = hierarchy.values.thetaY[0] / 100;
+    const rotZ = hierarchy.values.thetaZ[0] / 100;
+    const tx = hierarchy.values.rx[0];
+    const ty = hierarchy.values.ry[0];
+    const tz = hierarchy.values.rz[0];
+    const w = hierarchy.values.w[0];
+    const h = hierarchy.values.h[0];
+    const l = hierarchy.values.l[0];
+    const anchorW = hierarchy.values.anchorX[0];
+    const anchorH = hierarchy.values.anchorY[0];
+    const anchorL = hierarchy.values.anchorZ[0];
+    const color = hierarchy.values.color[0];
 
-    var s = scale4(lowerBodyWidth, lowerBodyHeight, lowerBodyHeight);
-    var instanceMatrix = MV.mult(MV.translate(0.0, -0.0* lowerBodyHeight, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.translate(tx, ty, tz));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rotX, 1, 0, 0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rotY, 0, 1, 0));
+    modelViewMatrix = MV.mult(modelViewMatrix, MV.rotate(rotZ, 0, 0, 1));
+
+    const s = scale4(w, h, l);
+    // Specifying the anchor around which rotation will happen. we can have choices for x,y,z as ay,bx,cz so we set a,b,c values
+    const instanceMatrix = MV.mult(MV.translate(anchorW * w, anchorH * h, anchorL * l), s); // scale around the center for x, z, but scale upwards for y
+    const t = MV.mult(modelViewMatrix, instanceMatrix);
+
     ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
     ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
+
     for (let i = 0; i < 36; i++)
-        lowerColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(lowerColor), ANIM_CANVAS_GL.STATIC_DRAW);
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-
-function neck() {
-
-    var headColor = [];
-    var s = scale4(neckWidth, neckHeight, neckWidth);
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        headColor.push(MV.vec4(0.8, 0.67, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(headColor), ANIM_CANVAS_GL.STATIC_DRAW);
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-function shoulder() {
-
-    var headColor = [];
-    var s = scale4(shoulderWidth, shoulderHeight, shoulderWidth);
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        headColor.push(MV.vec4(0.8, 0.67, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(headColor), ANIM_CANVAS_GL.STATIC_DRAW);
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function head() {
-
-    var headColor = [];
-    var s = scale4(headWidth, headHeight, headWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.0 * headHeight, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36;i++)
-        headColor.push(MV.vec4(0.8, 0.67, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(headColor), ANIM_CANVAS_GL.STATIC_DRAW);
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function rightEye() {
-
-    var eyeColor = [];
-    var s = scale4(eye, eye, eye);
-    var t = MV.mult(modelViewMatrix, s);
-
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        eyeColor.push(MV.vec4(0.0, 0.0, 1.0, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(eyeColor), ANIM_CANVAS_GL.STATIC_DRAW);
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-function leftEye() {
-
-    var eyeColor = [];
-    var s = scale4(eye, eye, eye);
-    var t = MV.mult(modelViewMatrix, s);
-
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        eyeColor.push(MV.vec4(0.0, 0.0, 1.0, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(eyeColor), ANIM_CANVAS_GL.STATIC_DRAW);
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function nose() {
-
-    var noseColor = [];
-    var s = scale4(noseWidth, noseHeight, noseWidth);
-    var t = MV.mult(modelViewMatrix, s);
-
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        noseColor.push(MV.vec4(0.8, 0.8, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(noseColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function leftFrontUpperLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
-
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function leftFrontLowerLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function rightFrontUpperLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function rightFrontLowerLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-
-function leftBackUpperLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function leftBackLowerLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function rightBackUpperLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerBodyHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.4, 0.16, 0.14, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function rightBackLowerLeg() {
-    var legColor = [];
-
-    var s = scale4(upperLegWitdh, upperLegHeight, upperLegWitdh);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperLegHeight, 0.0), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        legColor.push(MV.vec4(0.31, 0.16, 0.04, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(legColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function rightUpperArm() {
-    var armColor = [];
-
-    var s = scale4(upperArmWidth, upperArmHeight, upperArmWidth);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperArmHeight, 0.0), s);
-    //instanceMatrix = MV.mult(MV.rotate(180,0,0,1), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        armColor.push(MV.vec4(0.8, 0.61, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(armColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function rightLowerArm() {
-    var armColor = [];
-
-    var s = scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerArmHeight, 0.0), s);
-    //instanceMatrix = MV.mult(MV.rotate(180, 0, 0, 1), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        armColor.push(MV.vec4(0.8, 0.61, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(armColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function leftUpperArm() {
-    var armColor = [];
-
-    var s = scale4(upperArmWidth, upperArmHeight, upperArmWidth);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * upperArmHeight, 0.0), s);
-    //instanceMatrix = MV.mult(MV.rotate(180, 0, 0, 1), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        armColor.push(MV.vec4(0.8, 0.61, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(armColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-function leftLowerArm() {
-    var armColor = [];
-
-    var s = scale4(lowerArmWidth, lowerArmHeight, lowerArmWidth);
-    // var instanceMatrix = MV.mult(MV.translate(0.0, -0.5 * lowerArmHeight, 0.0), s);
-    //instanceMatrix = MV.mult(MV.rotate(180, 0, 0, 1), s);
-
-    var t = MV.mult(modelViewMatrix, s);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        armColor.push(MV.vec4(0.8, 0.61, 0.55, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(armColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-
-}
-
-function upperBody() {
-    var upperBodyColor = [];
-    var s = scale4(3.0, upperBodyHeight, upperBodyWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * upperBodyHeight, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        upperBodyColor.push(MV.vec4(0.0, 0.0, 0.35, 1.0));
+        upperBodyColor.push(color);
 
     ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(upperBodyColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
+    
     ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
+
+    stack.push(modelViewMatrix);
+
+    if (hierarchy.children !== undefined) {
+        hierarchy.children.forEach((child: HierarchicalModel) => {
+            if (hierarchy.children) {
+                drawHierarchy(child);
+                modelViewMatrix = stack.pop();
+                stack.push(modelViewMatrix);
+            }
+        });
+    }
+
+    stack.pop();
 }
-
-function ground() {
-    var groundColor = [];
-    var s = scale4(groundWidth, groundHeight, groundWidth);
-    var instanceMatrix = MV.mult(MV.translate(0.0, 0.5 * groundHeight, 0.0), s);
-    var t = MV.mult(modelViewMatrix, instanceMatrix);
-    ANIM_CANVAS_GL.uniformMatrix4fv(modelViewMatrixLoc, false, MV.flatten(t));
-
-    ANIM_CANVAS_GL.bindBuffer(ANIM_CANVAS_GL.ARRAY_BUFFER, cBuffer);
-    for (let i = 0; i < 36; i++)
-        groundColor.push(MV.vec4(0.03, 0.2, 0.0, 1.0));
-
-    ANIM_CANVAS_GL.bufferData(ANIM_CANVAS_GL.ARRAY_BUFFER, MV.flatten(groundColor), ANIM_CANVAS_GL.STATIC_DRAW);
-
-    ANIM_CANVAS_GL.drawArrays(ANIM_CANVAS_GL.TRIANGLES, 0, NumVertices);
-}
-
-

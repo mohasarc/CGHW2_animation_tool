@@ -45,7 +45,8 @@ export default function MotionControls() {
                 <Slider
                     size="small"
                     value={slider1}
-                    min={2}
+                    min={-360}
+                    max={360}
                     aria-label="Small"
                     valueLabelDisplay="auto"
                     onChange={(event: any) => { handleSlider1Change(event.target.value) }}
@@ -54,7 +55,8 @@ export default function MotionControls() {
                 <Slider
                     size="small"
                     value={slider2}
-                    min={2}
+                    min={-360}
+                    max={360}
                     aria-label="Small"
                     valueLabelDisplay="auto"
                     onChange={(event: any) => { handleSlider2Change(event.target.value) }}
@@ -63,7 +65,8 @@ export default function MotionControls() {
                 <Slider
                     size="small"
                     value={slider3}
-                    min={2}
+                    min={-360}
+                    max={360}
                     aria-label="Small"
                     valueLabelDisplay="auto"
                     onChange={(event: any) => { handleSlider3Change(event.target.value) }}
@@ -72,7 +75,8 @@ export default function MotionControls() {
                 <Slider
                     size="small"
                     value={slider4}
-                    min={2}
+                    min={-360}
+                    max={360}
                     aria-label="Small"
                     valueLabelDisplay="auto"
                     onChange={(event: any) => { handleSlider4Change(event.target.value) }}
