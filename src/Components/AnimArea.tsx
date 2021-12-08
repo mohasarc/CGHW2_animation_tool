@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@mui/material';
+import { Card, CardContent, Button } from '@mui/material';
 import { useEffect } from "react";
 import * as MV from '../Common/MV';
 import * as INIT from '../Common/initShaders';
@@ -46,6 +46,9 @@ let MODEL_VIEW_MATRIX: any;
 let PROJECTION_MATRIX: any;
 let modelViewMatrixLoc: any;
 let vBuffer, cBuffer: WebGLBuffer|null;
+let currentFrame = 0;
+let frameCount = 1;
+let play = false;
 
 export interface HierarchicalModel {
     name: string,
@@ -76,10 +79,29 @@ export default function AnimArea() {
     return (
         <Card>
             <CardContent style={{ backgroundColor: '#3b4245' }}>
+                <Button onClick = {() => {
+                    addFrame(MODEL);
+                    frameCount++;
+                    }
+                } >add Frame</Button>
+                <Button onClick = {() => {play = true;}} >play </Button>
+                <Button onClick = {() => {play = false;}}>stop</Button>
+                <br/>
                 <canvas id={'macanvas'} width={'520'} height={'550'} />
             </CardContent>
         </Card>
     );
+}
+
+function addFrame(model: HierarchicalModel) {
+    model.values.thetaX.push(model.values.thetaX[model.values.thetaX.length - 1]);
+    model.values.thetaY.push(model.values.thetaY[model.values.thetaY.length - 1]);
+    model.values.thetaZ.push(model.values.thetaZ[model.values.thetaZ.length - 1]);
+    
+    model.children?.forEach((child) => {
+        addFrame(child);
+    });
+    console.log('Model now: ', model);
 }
 
 /**
@@ -142,7 +164,7 @@ function initAnimCanvas() {
 
     function changeThetaX(MODEL: HierarchicalModel, newTheta: number, name: string) {
         if (MODEL.name === name) {
-            MODEL.values.thetaX[0] = newTheta;
+            MODEL.values.thetaX[MODEL.values.thetaX.length - 1] = newTheta;
             return true;
         }
 
@@ -159,7 +181,7 @@ function initAnimCanvas() {
 
     function changeThetaY(MODEL: HierarchicalModel, newTheta: number, name: string) {
         if (MODEL.name === name) {
-            MODEL.values.thetaY[0] = newTheta;
+            MODEL.values.thetaY[MODEL.values.thetaY.length - 1] = newTheta;
             return true;
         }
 
@@ -176,7 +198,7 @@ function initAnimCanvas() {
 
     function changeThetaZ(MODEL: HierarchicalModel, newTheta: number, name: string) {
         if (MODEL.name === name) {
-            MODEL.values.thetaZ[0] = newTheta;
+            MODEL.values.thetaZ[MODEL.values.thetaZ.length - 1] = newTheta;
             return true;
         }
 
@@ -237,18 +259,23 @@ function initAnimCanvas() {
  * This function will be called on every fram to calculate what to draw to the frame buffer
  */
 function render() {
-    ANIM_CANVAS_GL.clear(ANIM_CANVAS_GL.COLOR_BUFFER_BIT | ANIM_CANVAS_GL.DEPTH_BUFFER_BIT);
-    MODEL_VIEW_MATRIX = MV.rotate(0, 1, 0, 0);
-    drawHierarchy(MODEL);
-    requestAnimationFrame(render);
+    setTimeout(() => {
+        ANIM_CANVAS_GL.clear(ANIM_CANVAS_GL.COLOR_BUFFER_BIT | ANIM_CANVAS_GL.DEPTH_BUFFER_BIT);
+        MODEL_VIEW_MATRIX = MV.rotate(0, 1, 0, 0);
+        if (!play) currentFrame = frameCount - 1;
+        else currentFrame = (currentFrame + 1) % frameCount;
+        
+        drawHierarchy(MODEL);
+        requestAnimationFrame(render);
+    }, 100);
 }
 
 function drawHierarchy(hierarchy: HierarchicalModel) {
     const upperBodyColor = [];
 
-    const rotX = hierarchy.values.thetaX[0] / 100;
-    const rotY = hierarchy.values.thetaY[0] / 100;
-    const rotZ = hierarchy.values.thetaZ[0] / 100;
+    const rotX = hierarchy.values.thetaX[currentFrame] / 100;
+    const rotY = hierarchy.values.thetaY[currentFrame] / 100;
+    const rotZ = hierarchy.values.thetaZ[currentFrame] / 100;
     const tx = hierarchy.values.rx[0];
     const ty = hierarchy.values.ry[0];
     const tz = hierarchy.values.rz[0];
