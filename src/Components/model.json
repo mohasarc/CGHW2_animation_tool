@@ -1,0 +1,512 @@
+{
+    "name": "Lower Body",
+    "values": {
+        "anim": true,
+        "rx": [0], 
+        "ry": [0],
+        "rz": [0],
+        "anchorX": [0],
+        "anchorY": [-0.5],
+        "anchorZ": [0],
+        "w": [12], 
+        "h": [5], 
+        "l": [5], 
+        "thetaX": [0],
+        "thetaY": [0],
+        "thetaZ": [0],
+        "color": [[0.31, 0.16, 0.04, 1.0]]
+    },
+    "children": [
+        {
+            "name": "Upper Body",
+            "values": {
+                "anim": true,
+                "rx": [-3.5], 
+                "ry": [0],
+                "rz": [0.0],
+                "anchorX": [0],
+                "anchorY": [0.5],
+                "anchorZ": [0],
+                "w": [5], 
+                "h": [4], 
+                "l": [4], 
+                "thetaX": [0],
+                "thetaY": [0],
+                "thetaZ": [0],
+                "limits": {
+                    "thetaX": {"max": 45, "min": -45},
+                    "thetaY": {"max": 90, "min": -90},
+                    "thetaZ": {"max": 85, "min": -20}
+                },
+                "color": [[0.0, 0.0, 0.35, 1.0]]
+            },
+            "children": [
+                {
+                    "name": "neck",
+                    "values": {
+                        "anim": true,
+                        "rx": [0], 
+                        "ry": [4],
+                        "rz": [0],
+                        "anchorX": [0],
+                        "anchorY": [0],
+                        "anchorZ": [0],
+                        "w": [1], 
+                        "h": [1], 
+                        "l": [1], 
+                        "thetaX": [0],
+                        "thetaY": [0],
+                        "thetaZ": [0],
+                        "color": [[0.8, 0.67, 0.55, 1.0]],
+                        "limits": {
+                            "thetaX": {"max": 60, "min": -60},
+                            "thetaY": {"max": 90, "min": -90},
+                            "thetaZ": {"max": 90, "min": -70}
+                        }
+                    },
+                    "children": [
+                        {
+                            "name": "head",
+                            "values": {
+                                "anim": false,
+                                "rx": [0], 
+                                "ry": [0.5],
+                                "rz": [0],
+                                "anchorX": [0],
+                                "anchorY": [0.5],
+                                "anchorZ": [0],
+                                "w": [2], 
+                                "h": [2], 
+                                "l": [2], 
+                                "thetaX": [0],
+                                "thetaY": [0],
+                                "thetaZ": [0],
+                                "color": [[0.8, 0.67, 0.55, 1.0]]
+                            },
+                            "children": [
+                                {
+                                    "name": "Left Eye",
+                                    "values": {
+                                        "anim": false,
+                                        "rx": [-1], 
+                                        "ry": [1.5],
+                                        "rz": [-0.5],
+                                        "anchorX": [0],
+                                        "anchorY": [0],
+                                        "anchorZ": [0],
+                                        "w": [0.25], 
+                                        "h": [0.25], 
+                                        "l": [0.25], 
+                                        "thetaX": [0],
+                                        "thetaY": [0],
+                                        "thetaZ": [0],
+                                        "color": [[0.0, 0.0, 1.0, 1.0]]
+                                    }
+                                },
+                                {
+                                    "name": "Right Eye",
+                                    "values": {
+                                        "anim": false,
+                                        "rx": [-1], 
+                                        "ry": [1.5],
+                                        "rz": [0.5],
+                                        "anchorX": [0],
+                                        "anchorY": [0],
+                                        "anchorZ": [0],
+                                        "w": [0.25], 
+                                        "h": [0.25], 
+                                        "l": [0.25], 
+                                        "thetaX": [0],
+                                        "thetaY": [0],
+                                        "thetaZ": [0],
+                                        "color": [[0.0, 0.0, 1.0, 1.0]]
+                                    }
+                                },
+                                {
+                                    "name": "nose",
+                                    "values": {
+                                        "anim": false,
+                                        "rx": [-1], 
+                                        "ry": [1],
+                                        "rz": [0],
+                                        "anchorX": [0],
+                                        "anchorY": [0],
+                                        "anchorZ": [0],
+                                        "w": [0.25], 
+                                        "h": [0.5], 
+                                        "l": [0.25], 
+                                        "thetaX": [0],
+                                        "thetaY": [0],
+                                        "thetaZ": [0],
+                                        "color": [[0.8, 0.8, 0.55, 1.0]]
+                                    }
+                                },
+                                {
+                                    "name": "mouth",
+                                    "values": {
+                                        "anim": false,
+                                        "rx": [-1], 
+                                        "ry": [0.25],
+                                        "rz": [0],
+                                        "anchorX": [0],
+                                        "anchorY": [0],
+                                        "anchorZ": [0],
+                                        "w": [0.25], 
+                                        "h": [0.25], 
+                                        "l": [0.75], 
+                                        "thetaX": [0],
+                                        "thetaY": [0],
+                                        "thetaZ": [0],
+                                        "color": [[0.8, 0.8, 0.55, 1.0]]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Left Upper Arm",
+                    "values": {
+                        "anim": true,
+                        "rx": [0], 
+                        "ry": [4],
+                        "rz": [2.5],
+                        "anchorX": [0],
+                        "anchorY": [-0.5],
+                        "anchorZ": [0],
+                        "w": [1], 
+                        "h": [2], 
+                        "l": [1], 
+                        "thetaX": [0],
+                        "thetaY": [0],
+                        "thetaZ": [0],
+                        "color": [[0.8, 0.61, 0.55, 1.0]],
+                        "limits": {
+                            "thetaX": {"max": 0, "min": -180},
+                            "thetaY": {"max": 90, "min": -90},
+                            "thetaZ": {"max": 10, "min": -90}
+                        }
+                    },
+                    "children": [
+                        {
+                            "name": "Left Lower Arm",
+                            "values": {
+                                "anim": true,
+                                "rx": [0], 
+                                "ry": [-1.5],
+                                "rz": [0],
+                                "anchorX": [0],
+                                "anchorY": [-0.5],
+                                "anchorZ": [0],
+                                "w": [1], 
+                                "h": [2], 
+                                "l": [1], 
+                                "thetaX": [0],
+                                "thetaY": [0],
+                                "thetaZ": [0],
+                                "color": [[0.8, 0.61, 0.55, 1.0]],
+                                "limits": {
+                                    "thetaX": {"max": 0, "min": 0},
+                                    "thetaY": {"max": 0, "min": 0},
+                                    "thetaZ": {"max": 0, "min": -110}
+                                }
+                            },
+                            "children": [
+                                {
+                                    "name": "Left Hand",
+                                    "values": {
+                                        "anim": false,
+                                        "rx": [0], 
+                                        "ry": [-2],
+                                        "rz": [0],
+                                        "anchorX": [0],
+                                        "anchorY": [-0.5],
+                                        "anchorZ": [0],
+                                        "w": [0.5], 
+                                        "h": [0.5], 
+                                        "l": [0.5], 
+                                        "thetaX": [0],
+                                        "thetaY": [0],
+                                        "thetaZ": [0],
+                                        "color": [[0.9, 0.31, 0.75, 1.0]]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Right Upper Arm",
+                    "values": {
+                        "anim": true,
+                        "rx": [0], 
+                        "ry": [4],
+                        "rz": [-2.5],
+                        "anchorX": [0],
+                        "anchorY": [-0.5],
+                        "anchorZ": [0],
+                        "w": [1], 
+                        "h": [2], 
+                        "l": [1], 
+                        "thetaX": [0],
+                        "thetaY": [0],
+                        "thetaZ": [0],
+                        "color": [[0.8, 0.61, 0.55, 1.0]],
+                        "limits": {
+                            "thetaX": {"max": 180, "min": 0},
+                            "thetaY": {"max": 90, "min": -90},
+                            "thetaZ": {"max": 10, "min": -90}
+                        }
+                    },
+                    "children": [
+                        {
+                            "name": "Right Lower Arm",
+                            "values": {
+                                "anim": true,
+                                "rx": [0], 
+                                "ry": [-1.5],
+                                "rz": [0],
+                                "anchorX": [0],
+                                "anchorY": [-0.5],
+                                "anchorZ": [0],
+                                "w": [1], 
+                                "h": [2], 
+                                "l": [1], 
+                                "thetaX": [0],
+                                "thetaY": [0],
+                                "thetaZ": [0],
+                                "color": [[0.8, 0.61, 0.55, 1.0]],
+                                "limits": {
+                                    "thetaX": {"max": 0, "min": 0},
+                                    "thetaY": {"max": 0, "min": 0},
+                                    "thetaZ": {"max": 0, "min": -110}
+                                }
+                            },
+                            "children": [
+                                {
+                                    "name": "Right Hand",
+                                    "values": {
+                                        "anim": false,
+                                        "rx": [0], 
+                                        "ry": [-2],
+                                        "rz": [0],
+                                        "anchorX": [0],
+                                        "anchorY": [-0.5],
+                                        "anchorZ": [0],
+                                        "w": [0.5], 
+                                        "h": [0.5], 
+                                        "l": [0.5], 
+                                        "thetaX": [0],
+                                        "thetaY": [0],
+                                        "thetaZ": [0],
+                                        "color": [[0.9, 0.31, 0.75, 1.0]]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Left Front Upper Leg",
+            "values": {
+                "anim": true,
+                "rx": [-3], 
+                "ry": [-5],
+                "rz": [1.5],
+                "anchorX": [0],
+                "anchorY": [-0.5],
+                "anchorZ": [0],
+                "w": [1], 
+                "h": [2], 
+                "l": [1], 
+                "thetaX": [0],
+                "thetaY": [0],
+                "thetaZ": [0],
+                "color": [[0.4, 0.16, 0.14, 1.0]],
+                "limits": {
+                    "thetaX": {"max": 0, "min": 0},
+                    "thetaY": {"max": 0, "min": 0},
+                    "thetaZ": {"max": 45, "min": -45}
+                }
+            },
+            "children": [
+                {
+                    "name": "Left Front Lower Leg",
+                    "values": {
+                        "anim": true,
+                        "rx": [0], 
+                        "ry": [-2],
+                        "rz": [0],
+                        "anchorX": [0],
+                        "anchorY": [-0.5],
+                        "anchorZ": [0],
+                        "w": [1], 
+                        "h": [2], 
+                        "l": [1], 
+                        "thetaX": [0],
+                        "thetaY": [0],
+                        "thetaZ": [0],
+                        "color": [[0.31, 0.16, 0.04, 1.0]],
+                        "limits": {
+                            "thetaX": {"max": 0, "min": 0},
+                            "thetaY": {"max": 0, "min": 0},
+                            "thetaZ": {"max": 160, "min": 0}
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Right Front Upper Leg",
+            "values": {
+                "anim": true,
+                "rx": [-3], 
+                "ry": [-5],
+                "rz": [-1.5],
+                "anchorX": [0],
+                "anchorY": [-0.5],
+                "anchorZ": [0],
+                "w": [1], 
+                "h": [2], 
+                "l": [1], 
+                "thetaX": [0],
+                "thetaY": [0],
+                "thetaZ": [0],
+                "color": [[0.4, 0.16, 0.14, 1.0]],
+                "limits": {
+                    "thetaX": {"max": 0, "min": 0},
+                    "thetaY": {"max": 0, "min": 0},
+                    "thetaZ": {"max": 45, "min": -45}
+                }
+            },
+            "children": [
+                {
+                    "name": "Right Front Lower Leg",
+                    "values": {
+                        "anim": true,
+                        "rx": [0], 
+                        "ry": [-2],
+                        "rz": [0],
+                        "anchorX": [0],
+                        "anchorY": [-0.5],
+                        "anchorZ": [0],
+                        "w": [1], 
+                        "h": [2], 
+                        "l": [1], 
+                        "thetaX": [0],
+                        "thetaY": [0],
+                        "thetaZ": [0],
+                        "color": [[0.31, 0.16, 0.04, 1.0]],
+                        "limits": {
+                            "thetaX": {"max": 0, "min": 0},
+                            "thetaY": {"max": 0, "min": 0},
+                            "thetaZ": {"max": 160, "min": 0}
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Left Back Upper Leg",
+            "values": {
+                "anim": true,
+                "rx": [3], 
+                "ry": [-5],
+                "rz": [1.5],
+                "anchorX": [0],
+                "anchorY": [-0.5],
+                "anchorZ": [0],
+                "w": [1], 
+                "h": [2], 
+                "l": [1], 
+                "thetaX": [0],
+                "thetaY": [0],
+                "thetaZ": [0],
+                "color": [[0.4, 0.16, 0.14, 1.0]],
+                "limits": {
+                    "thetaX": {"max": 0, "min": 0},
+                    "thetaY": {"max": 0, "min": 0},
+                    "thetaZ": {"max": 45, "min": -45}
+                }
+            },
+            "children": [
+                {
+                    "name": "Left Back Lower Leg",
+                    "values": {
+                        "anim": true,
+                        "rx": [0], 
+                        "ry": [-2],
+                        "rz": [0],
+                        "anchorX": [0],
+                        "anchorY": [-0.5],
+                        "anchorZ": [0],
+                        "w": [1], 
+                        "h": [2], 
+                        "l": [1], 
+                        "thetaX": [0],
+                        "thetaY": [0],
+                        "thetaZ": [0],
+                        "color": [[0.31, 0.16, 0.04, 1.0]],
+                        "limits": {
+                            "thetaX": {"max": 0, "min": 0},
+                            "thetaY": {"max": 0, "min": 0},
+                            "thetaZ": {"max": 160, "min": 0}
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Right Back Upper Leg",
+            "values": {
+                "anim": true,
+                "rx": [3], 
+                "ry": [-5],
+                "rz": [-1.5],
+                "anchorX": [0],
+                "anchorY": [-0.5],
+                "anchorZ": [0],
+                "w": [1], 
+                "h": [2], 
+                "l": [1], 
+                "thetaX": [0],
+                "thetaY": [0],
+                "thetaZ": [0],
+                "color": [[0.4, 0.16, 0.14, 1.0]],
+                "limits": {
+                    "thetaX": {"max": 0, "min": 0},
+                    "thetaY": {"max": 0, "min": 0},
+                    "thetaZ": {"max": 45, "min": -45}
+                }
+            },
+            "children": [
+                {
+                    "name": "Right Back Lower Leg",
+                    "values": {
+                        "anim": true,
+                        "rx": [0], 
+                        "ry": [-2],
+                        "rz": [0],
+                        "anchorX": [0],
+                        "anchorY": [-0.5],
+                        "anchorZ": [0],
+                        "w": [1], 
+                        "h": [2], 
+                        "l": [1], 
+                        "thetaX": [0],
+                        "thetaY": [0],
+                        "thetaZ": [0],
+                        "color": [[0.31, 0.16, 0.04, 1.0]],
+                        "limits": {
+                            "thetaX": {"max": 0, "min": 0},
+                            "thetaY": {"max": 0, "min": 0},
+                            "thetaZ": {"max": 160, "min": 0}
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

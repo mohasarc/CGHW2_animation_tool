@@ -58,14 +58,14 @@ export default function App() {
                             <Grid item xs={12} sm={6} md={6} >
                                 <AnimArea />
                             </Grid>
-                            <Grid item xs={12} sm={6} md={2}>
+                            <Grid item xs={12} sm={6} md={4}>
                                 <BodyOptionControls />
                             </Grid>
-                            <Grid item xs={12} sm={6} md={4}>
+                            {/* <Grid item xs={12} sm={6} md={4}>
                                 <Box py={0}>
                                     <Recordings />
                                 </Box>
-                            </Grid>
+                            </Grid> */}
                             
                         </Grid>
                     </Grid>

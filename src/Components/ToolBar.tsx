@@ -3,6 +3,9 @@ import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
 import RedoOutlinedIcon from '@mui/icons-material/RedoOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
+import StopRoundedIcon from '@mui/icons-material/StopRounded';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 
 import { StateManager } from '../util/StateManager'
 
@@ -15,7 +18,7 @@ export default function ToolBar() {
                 </Button>
                 <Button onClick={redo}>
                     <RedoOutlinedIcon sx={{ color: 'white' }} />
-                </Button>
+                </Button> */}
                 <Button onClick={downloadObjectAsJson}>
                     <SaveOutlinedIcon sx={{ color: 'white' }} />
                 </Button>
@@ -26,10 +29,31 @@ export default function ToolBar() {
                         hidden
                         onChange={changeHandler}
                     />
-                </Button> */}
+                </Button>
+                <Button onClick={playAnimation} >
+                    <PlayArrowRoundedIcon sx={{ color: 'white' }} />
+                </Button>
+                <Button onClick={stopAnimation} >
+                    <StopRoundedIcon sx={{ color: 'white' }} />
+                </Button>
+                <Button onClick={addFrame} >
+                    <AddRoundedIcon sx={{ color: 'white' }} />
+                </Button>
             </CardContent>
         </Card>
     );
+}
+
+function playAnimation() {
+    StateManager.getInstance().setState('play', true);
+}
+
+function stopAnimation() {
+    StateManager.getInstance().setState('play', false);
+}
+
+function addFrame() {
+    StateManager.getInstance().setState('frame', 1);
 }
 
 /**
@@ -42,7 +66,7 @@ function downloadObjectAsJson() {
     const downloadAnchorNode = document.createElement('a');
 
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", exportName + ".meg");
+    downloadAnchorNode.setAttribute("download", exportName + ".msl");
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
