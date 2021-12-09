@@ -183,7 +183,7 @@
                         "color": [[0.8, 0.61, 0.55, 1.0]],
                         "limits": {
                             "thetaX": {"max": 0, "min": -180},
-                            "thetaY": {"max": 0, "min": 0},
+                            "thetaY": {"max": 90, "min": -90},
                             "thetaZ": {"max": 10, "min": -90}
                         }
                     },
@@ -254,7 +254,7 @@
                         "color": [[0.8, 0.61, 0.55, 1.0]],
                         "limits": {
                             "thetaX": {"max": 180, "min": 0},
-                            "thetaY": {"max": 0, "min": 0},
+                            "thetaY": {"max": 90, "min": -90},
                             "thetaZ": {"max": 10, "min": -90}
                         }
                     },

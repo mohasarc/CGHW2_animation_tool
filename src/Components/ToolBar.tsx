@@ -3,6 +3,9 @@ import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
 import RedoOutlinedIcon from '@mui/icons-material/RedoOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
+import StopRoundedIcon from '@mui/icons-material/StopRounded';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 
 import { StateManager } from '../util/StateManager'
 
@@ -27,9 +30,30 @@ export default function ToolBar() {
                         onChange={changeHandler}
                     />
                 </Button>
+                <Button onClick={playAnimation} >
+                    <PlayArrowRoundedIcon sx={{ color: 'white' }} />
+                </Button>
+                <Button onClick={stopAnimation} >
+                    <StopRoundedIcon sx={{ color: 'white' }} />
+                </Button>
+                <Button onClick={addFrame} >
+                    <AddRoundedIcon sx={{ color: 'white' }} />
+                </Button>
             </CardContent>
         </Card>
     );
+}
+
+function playAnimation() {
+    StateManager.getInstance().setState('play', true);
+}
+
+function stopAnimation() {
+    StateManager.getInstance().setState('play', false);
+}
+
+function addFrame() {
+    StateManager.getInstance().setState('frame', 1);
 }
 
 /**

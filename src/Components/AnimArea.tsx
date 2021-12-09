@@ -30,7 +30,6 @@ var vertices = [
     MV.vec4(  0.5, -0.5, -0.5, 1.0 )
 ];
 
-// RGBA colors
 var vertexColors = [
     MV.vec4(0.0, 0.0, 0.0, 1.0),  // black
     MV.vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
@@ -51,6 +50,8 @@ let vBuffer, cBuffer: WebGLBuffer|null;
 StateManager.getInstance().setState('currentFrame', 0);
 StateManager.getInstance().setState('frameCount', 1);
 StateManager.getInstance().setState('play', false);
+StateManager.getInstance().setState('model', INTERPOLATED_MODEL);
+StateManager.getInstance().subscribe('frame', handleFrameCreation);
 
 export interface HierarchicalModel {
     name: string,
@@ -78,35 +79,30 @@ export interface HierarchicalModel {
     children?: HierarchicalModel[],
 }
 
-StateManager.getInstance().setState('model', INTERPOLATED_MODEL);
-
 export default function AnimArea() {
     useEffect(initAnimCanvas);
 
     return (
         <Card>
             <CardContent style={{ backgroundColor: '#3b4245' }}>
-                <Button onClick = {() => {
-                    const QUALIFYING_CHANGE = 5;
-                    let frameCount = StateManager.getInstance().getState('frameCount');
-                    addFrame(MODEL);
-
-                    const interpolationFramesCount = Math.round(
-                        calculateLongestInterval(StateManager.getInstance().getState('model')) / QUALIFYING_CHANGE
-                    );
-                    interpolate(StateManager.getInstance().getState('model'), interpolationFramesCount);
-                    addFrame(StateManager.getInstance().getState('model'));
-                    frameCount = frameCount + interpolationFramesCount + 1;
-                    StateManager.getInstance().setState('frameCount', frameCount);
-                    }
-                } >add Frame</Button>
-                <Button onClick = {() => {StateManager.getInstance().setState('play', true)}} >play </Button>
-                <Button onClick = {() => {StateManager.getInstance().setState('play', false)}}>stop</Button>
-                <br/>
                 <canvas id={'macanvas'} width={'520'} height={'550'} />
             </CardContent>
         </Card>
     );
+}
+
+function handleFrameCreation() {
+    const QUALIFYING_CHANGE = 5;
+    let frameCount = StateManager.getInstance().getState('frameCount');
+    addFrame(MODEL);
+
+    const interpolationFramesCount = Math.round(
+        calculateLongestInterval(StateManager.getInstance().getState('model')) / QUALIFYING_CHANGE
+    );
+    interpolate(StateManager.getInstance().getState('model'), interpolationFramesCount);
+    addFrame(StateManager.getInstance().getState('model'));
+    frameCount = frameCount + interpolationFramesCount + 1;
+    StateManager.getInstance().setState('frameCount', frameCount);
 }
 
 function addFrame(model: HierarchicalModel) {
