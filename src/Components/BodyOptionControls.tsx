@@ -30,8 +30,31 @@ export default function MotionControls() {
         setValue(StateManager.getInstance().getState('buttons'));
     });
 
-    function handleChange(bodyPart: number) {
+    function handleChange(bodyPart: string) {
         StateManager.getInstance().setState('buttons', bodyPart);
+        let theLimits;
+        let slider2Val;
+        let slider3Val;
+        let slider4Val;
+
+        function getLimits(model: HierarchicalModel, name: string) {
+            if (model.name === name) {
+                theLimits = model.values.limits;
+                slider2Val = model.values.thetaX[model.values.thetaX.length-1];
+                slider3Val = model.values.thetaY[model.values.thetaY.length-1];
+                slider4Val = model.values.thetaZ[model.values.thetaZ.length-1];
+            }
+    
+            model.children?.forEach((child) => {
+                getLimits(child, name);
+            });
+        }
+
+        getLimits(StateManager.getInstance().getState('model'), bodyPart);
+        StateManager.getInstance().setState('limits', theLimits)
+        StateManager.getInstance().setState('slider-2', slider2Val);
+        StateManager.getInstance().setState('slider-3', slider3Val);
+        StateManager.getInstance().setState('slider-4', slider4Val);
     }
 
     return (
