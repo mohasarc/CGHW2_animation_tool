@@ -15,7 +15,7 @@ export default function ToolBar() {
                 </Button>
                 <Button onClick={redo}>
                     <RedoOutlinedIcon sx={{ color: 'white' }} />
-                </Button>
+                </Button> */}
                 <Button onClick={downloadObjectAsJson}>
                     <SaveOutlinedIcon sx={{ color: 'white' }} />
                 </Button>
@@ -26,7 +26,7 @@ export default function ToolBar() {
                         hidden
                         onChange={changeHandler}
                     />
-                </Button> */}
+                </Button>
             </CardContent>
         </Card>
     );
@@ -42,7 +42,7 @@ function downloadObjectAsJson() {
     const downloadAnchorNode = document.createElement('a');
 
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", exportName + ".meg");
+    downloadAnchorNode.setAttribute("download", exportName + ".msl");
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();

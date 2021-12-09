@@ -47,9 +47,10 @@ let MODEL_VIEW_MATRIX: any;
 let PROJECTION_MATRIX: any;
 let modelViewMatrixLoc: any;
 let vBuffer, cBuffer: WebGLBuffer|null;
-let currentFrame = 0;
-let frameCount = 1;
-let play = false;
+
+StateManager.getInstance().setState('currentFrame', 0);
+StateManager.getInstance().setState('frameCount', 1);
+StateManager.getInstance().setState('play', false);
 
 export interface HierarchicalModel {
     name: string,
@@ -82,19 +83,20 @@ export default function AnimArea() {
             <CardContent style={{ backgroundColor: '#3b4245' }}>
                 <Button onClick = {() => {
                     const QUALIFYING_CHANGE = 100;
+                    let frameCount = StateManager.getInstance().getState('frameCount');
                     addFrame(MODEL);
-                    console.log('INTER MODEL BEFORE:', INTERPOLATED_MODEL);
-                    const interpolationFramesCount = Math.round(calculateLongestInterval(INTERPOLATED_MODEL) / QUALIFYING_CHANGE);
-                    console.log('Interpolation frame count calculated: ', interpolationFramesCount);
-                    console.log('INTER MODEL BEFORE ITERPO:', INTERPOLATED_MODEL);
-                    interpolate(INTERPOLATED_MODEL, interpolationFramesCount);
-                    addFrame(INTERPOLATED_MODEL);
-                    console.log('INTER MODEL AFTER ITERPO:', INTERPOLATED_MODEL);
+
+                    const interpolationFramesCount = Math.round(
+                        calculateLongestInterval(StateManager.getInstance().getState('model')) / QUALIFYING_CHANGE
+                    );
+                    interpolate(StateManager.getInstance().getState('model'), interpolationFramesCount);
+                    addFrame(StateManager.getInstance().getState('model'));
                     frameCount = frameCount + interpolationFramesCount + 1;
+                    StateManager.getInstance().setState('frameCount', frameCount);
                     }
                 } >add Frame</Button>
-                <Button onClick = {() => {play = true;}} >play </Button>
-                <Button onClick = {() => {play = false;}}>stop</Button>
+                <Button onClick = {() => {StateManager.getInstance().setState('play', true)}} >play </Button>
+                <Button onClick = {() => {StateManager.getInstance().setState('play', false)}}>stop</Button>
                 <br/>
                 <canvas id={'macanvas'} width={'520'} height={'550'} />
             </CardContent>
@@ -110,12 +112,9 @@ function addFrame(model: HierarchicalModel) {
     model.children?.forEach((child) => {
         addFrame(child);
     });
-    // console.log('Model now: ', model);
 }
 
 function calculateLongestInterval(model: HierarchicalModel) {
-    // find the longest interval
-    // find number of frames to add
     const thetaX1 = model.values.thetaX[model.values.thetaX.length - 1];
     const thetaX2 = model.values.thetaX[model.values.thetaX.length - 2];
     const thetaY1 = model.values.thetaY[model.values.thetaY.length - 1];
@@ -123,35 +122,19 @@ function calculateLongestInterval(model: HierarchicalModel) {
     const thetaZ1 = model.values.thetaZ[model.values.thetaZ.length - 1];
     const thetaZ2 = model.values.thetaZ[model.values.thetaZ.length - 2];
 
-    console.log('thetax', thetaX1, thetaX2);
-    console.log('thetay', thetaY1, thetaY2);
-    console.log('thetaz', thetaZ1, thetaZ2);
-
-    console.log('rhsx: ', thetaX2 !== undefined ? thetaX2 : thetaX1);
-    console.log('lhsx: ', thetaX1);
     let interval =  Math.abs(thetaX1 - (thetaX2 !== undefined ? thetaX2 : thetaX1));
-    console.log('Intervalx: ', interval);
-    console.log('rhsy:', thetaY2 !== undefined ? thetaY2 : thetaY1);
-    console.log('lhsy: ', thetaY1);
     interval =  Math.max(Math.abs( thetaY1 - (thetaY2 !== undefined ? thetaY2 : thetaY1)), interval);
-    console.log('Intervaly: ', interval);
-    console.log('rhsz:', thetaZ2 !== undefined ? thetaZ2 : thetaZ1);
-    console.log('lhsz: ', thetaZ1);
     interval =  Math.max(Math.abs( thetaZ1 - (thetaZ2 !== undefined ? thetaZ2 : thetaZ1)), interval);
-    console.log('Intervalz: ', interval);
 
     model.children?.forEach((child) => {
         interval = Math.max(interval, calculateLongestInterval(child));        
     });
 
-    console.log('Interval: ', interval);
     return interval;
 }
 
 function interpolate(model: HierarchicalModel, interpolationFrameCount: number) {
     if (interpolationFrameCount < 1) return;
-
-    console.log('at interpolate');
 
     const thetaX1 = model.values.thetaX[model.values.thetaX.length - 1];
     const thetaX2 = model.values.thetaX[model.values.thetaX.length - 2];
@@ -234,17 +217,17 @@ function initAnimCanvas() {
 
     StateManager.getInstance().subscribe('slider-2', () => {
         const newTheta = StateManager.getInstance().getState('slider-2') * 30;
-        changeThetaX(INTERPOLATED_MODEL, newTheta, bodyPart);
+        changeThetaX(StateManager.getInstance().getState('model'), newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-3', () => {
         const newTheta = StateManager.getInstance().getState('slider-3') * 30;
-        changeThetaY(INTERPOLATED_MODEL, newTheta, bodyPart);
+        changeThetaY(StateManager.getInstance().getState('model'), newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-4', () => {
         const newTheta = StateManager.getInstance().getState('slider-4') * 30;
-        changeThetaZ(INTERPOLATED_MODEL, newTheta, bodyPart);
+        changeThetaZ(StateManager.getInstance().getState('model'), newTheta, bodyPart);
     });
 
     function changeThetaX(MODEL: HierarchicalModel, newTheta: number, name: string) {
@@ -347,17 +330,22 @@ function render() {
     setTimeout(() => {
         ANIM_CANVAS_GL.clear(ANIM_CANVAS_GL.COLOR_BUFFER_BIT | ANIM_CANVAS_GL.DEPTH_BUFFER_BIT);
         MODEL_VIEW_MATRIX = MV.rotate(0, 1, 0, 0);
+        const frameCount = StateManager.getInstance().getState('frameCount');
+        const play = StateManager.getInstance().getState('play');
+        let currentFrame = StateManager.getInstance().getState('currentFrame');
         if (!play) currentFrame = frameCount - 1;
         else currentFrame = (currentFrame + 1) % frameCount;
-        
-        drawHierarchy(INTERPOLATED_MODEL);
+
+        StateManager.getInstance().setState('currentFrame', currentFrame);
+
+        drawHierarchy(StateManager.getInstance().getState('model'));
         requestAnimationFrame(render);
     }, 10);
 }
 
 function drawHierarchy(hierarchy: HierarchicalModel) {
     const upperBodyColor = [];
-
+    const currentFrame = StateManager.getInstance().getState('currentFrame');
     const rotX = hierarchy.values.thetaX[currentFrame] / 100;
     const rotY = hierarchy.values.thetaY[currentFrame] / 100;
     const rotZ = hierarchy.values.thetaZ[currentFrame] / 100;
