@@ -11,6 +11,7 @@ import importedModel from './model.json';
 
 // Global variables
 const MODEL: HierarchicalModel = importedModel;
+const INTERPOLATED_MODEL : HierarchicalModel = JSON.parse(JSON.stringify(MODEL));
 let ANIM_CANVAS: any;
 let ANIM_CANVAS_GL: WebGLRenderingContext;
 let WEBGL_PROGRAM: any;
@@ -71,7 +72,7 @@ export interface HierarchicalModel {
     children?: HierarchicalModel[],
 }
 
-StateManager.getInstance().setState('model', MODEL);
+StateManager.getInstance().setState('model', INTERPOLATED_MODEL);
 
 export default function AnimArea() {
     useEffect(initAnimCanvas);
@@ -80,8 +81,16 @@ export default function AnimArea() {
         <Card>
             <CardContent style={{ backgroundColor: '#3b4245' }}>
                 <Button onClick = {() => {
+                    const QUALIFYING_CHANGE = 100;
                     addFrame(MODEL);
-                    frameCount++;
+                    console.log('INTER MODEL BEFORE:', INTERPOLATED_MODEL);
+                    const interpolationFramesCount = Math.round(calculateLongestInterval(INTERPOLATED_MODEL) / QUALIFYING_CHANGE);
+                    console.log('Interpolation frame count calculated: ', interpolationFramesCount);
+                    console.log('INTER MODEL BEFORE ITERPO:', INTERPOLATED_MODEL);
+                    interpolate(INTERPOLATED_MODEL, interpolationFramesCount);
+                    addFrame(INTERPOLATED_MODEL);
+                    console.log('INTER MODEL AFTER ITERPO:', INTERPOLATED_MODEL);
+                    frameCount = frameCount + interpolationFramesCount + 1;
                     }
                 } >add Frame</Button>
                 <Button onClick = {() => {play = true;}} >play </Button>
@@ -101,7 +110,83 @@ function addFrame(model: HierarchicalModel) {
     model.children?.forEach((child) => {
         addFrame(child);
     });
-    console.log('Model now: ', model);
+    // console.log('Model now: ', model);
+}
+
+function calculateLongestInterval(model: HierarchicalModel) {
+    // find the longest interval
+    // find number of frames to add
+    const thetaX1 = model.values.thetaX[model.values.thetaX.length - 1];
+    const thetaX2 = model.values.thetaX[model.values.thetaX.length - 2];
+    const thetaY1 = model.values.thetaY[model.values.thetaY.length - 1];
+    const thetaY2 = model.values.thetaY[model.values.thetaY.length - 2];
+    const thetaZ1 = model.values.thetaZ[model.values.thetaZ.length - 1];
+    const thetaZ2 = model.values.thetaZ[model.values.thetaZ.length - 2];
+
+    console.log('thetax', thetaX1, thetaX2);
+    console.log('thetay', thetaY1, thetaY2);
+    console.log('thetaz', thetaZ1, thetaZ2);
+
+    console.log('rhsx: ', thetaX2 !== undefined ? thetaX2 : thetaX1);
+    console.log('lhsx: ', thetaX1);
+    let interval =  Math.abs(thetaX1 - (thetaX2 !== undefined ? thetaX2 : thetaX1));
+    console.log('Intervalx: ', interval);
+    console.log('rhsy:', thetaY2 !== undefined ? thetaY2 : thetaY1);
+    console.log('lhsy: ', thetaY1);
+    interval =  Math.max(Math.abs( thetaY1 - (thetaY2 !== undefined ? thetaY2 : thetaY1)), interval);
+    console.log('Intervaly: ', interval);
+    console.log('rhsz:', thetaZ2 !== undefined ? thetaZ2 : thetaZ1);
+    console.log('lhsz: ', thetaZ1);
+    interval =  Math.max(Math.abs( thetaZ1 - (thetaZ2 !== undefined ? thetaZ2 : thetaZ1)), interval);
+    console.log('Intervalz: ', interval);
+
+    model.children?.forEach((child) => {
+        interval = Math.max(interval, calculateLongestInterval(child));        
+    });
+
+    console.log('Interval: ', interval);
+    return interval;
+}
+
+function interpolate(model: HierarchicalModel, interpolationFrameCount: number) {
+    if (interpolationFrameCount < 1) return;
+
+    console.log('at interpolate');
+
+    const thetaX1 = model.values.thetaX[model.values.thetaX.length - 1];
+    const thetaX2 = model.values.thetaX[model.values.thetaX.length - 2];
+    const thetaY1 = model.values.thetaY[model.values.thetaY.length - 1];
+    const thetaY2 = model.values.thetaY[model.values.thetaY.length - 2];
+    const thetaZ1 = model.values.thetaZ[model.values.thetaZ.length - 1];
+    const thetaZ2 = model.values.thetaZ[model.values.thetaZ.length - 2];
+
+    const intervalX =  thetaX1 - (thetaX2 !== undefined ? thetaX2 : thetaX1);
+    const intervalY =  thetaY1 - (thetaY2 !== undefined ? thetaY2 : thetaY1);
+    const intervalZ =  thetaZ1 - (thetaZ2 !== undefined ? thetaZ2 : thetaZ1);
+    
+    const thetaChangeX = intervalX / interpolationFrameCount;
+    const thetaChangeY = intervalY / interpolationFrameCount;
+    const thetaChangeZ = intervalZ / interpolationFrameCount;
+
+    const lastFrameThetaX = model.values.thetaX.pop();
+    const lastFrameThetaY = model.values.thetaY.pop();
+    const lastFrameThetaZ = model.values.thetaZ.pop();
+
+    for (let i = 0; i < interpolationFrameCount; i++ ) {
+        model.values.thetaX.push(model.values.thetaX[model.values.thetaX.length-1] + thetaChangeX);
+        model.values.thetaY.push(model.values.thetaY[model.values.thetaY.length-1] + thetaChangeY);
+        model.values.thetaZ.push(model.values.thetaZ[model.values.thetaZ.length-1] + thetaChangeZ);
+    }
+
+    if (lastFrameThetaX !== undefined && lastFrameThetaY !== undefined && lastFrameThetaZ !== undefined ) {
+        model.values.thetaX.push(lastFrameThetaX);
+        model.values.thetaY.push(lastFrameThetaY);
+        model.values.thetaZ.push(lastFrameThetaZ);
+    }
+
+    model.children?.forEach((child) => {
+        interpolate(child, interpolationFrameCount);
+    });  
 }
 
 /**
@@ -149,17 +234,17 @@ function initAnimCanvas() {
 
     StateManager.getInstance().subscribe('slider-2', () => {
         const newTheta = StateManager.getInstance().getState('slider-2') * 30;
-        changeThetaX(MODEL, newTheta, bodyPart);
+        changeThetaX(INTERPOLATED_MODEL, newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-3', () => {
         const newTheta = StateManager.getInstance().getState('slider-3') * 30;
-        changeThetaY(MODEL, newTheta, bodyPart);
+        changeThetaY(INTERPOLATED_MODEL, newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-4', () => {
         const newTheta = StateManager.getInstance().getState('slider-4') * 30;
-        changeThetaZ(MODEL, newTheta, bodyPart);
+        changeThetaZ(INTERPOLATED_MODEL, newTheta, bodyPart);
     });
 
     function changeThetaX(MODEL: HierarchicalModel, newTheta: number, name: string) {
@@ -265,9 +350,9 @@ function render() {
         if (!play) currentFrame = frameCount - 1;
         else currentFrame = (currentFrame + 1) % frameCount;
         
-        drawHierarchy(MODEL);
+        drawHierarchy(INTERPOLATED_MODEL);
         requestAnimationFrame(render);
-    }, 100);
+    }, 10);
 }
 
 function drawHierarchy(hierarchy: HierarchicalModel) {
