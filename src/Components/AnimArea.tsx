@@ -7,6 +7,8 @@ import * as UTILS from '../Common/webgl-utils';
 import { animShaders } from '../shaders';
 import { StateManager } from "../util/StateManager";
 
+// The model containing all the transformation information
+// to draw an animate the mesh
 import importedModel from './model.json';
 
 // Global variables
