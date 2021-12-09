@@ -69,6 +69,11 @@ export interface HierarchicalModel {
         thetaY: number[],
         thetaZ: number[],
         color: number[][],
+        limits?: {
+            thetaX?: {min: number, max: number},
+            thetaY?: {min: number, max: number},
+            thetaZ?: {min: number, max: number},
+        }
     },
     children?: HierarchicalModel[],
 }
@@ -82,7 +87,7 @@ export default function AnimArea() {
         <Card>
             <CardContent style={{ backgroundColor: '#3b4245' }}>
                 <Button onClick = {() => {
-                    const QUALIFYING_CHANGE = 100;
+                    const QUALIFYING_CHANGE = 5;
                     let frameCount = StateManager.getInstance().getState('frameCount');
                     addFrame(MODEL);
 
@@ -216,28 +221,33 @@ function initAnimCanvas() {
     });
 
     StateManager.getInstance().subscribe('slider-2', () => {
-        const newTheta = StateManager.getInstance().getState('slider-2') * 30;
+        const newTheta = StateManager.getInstance().getState('slider-2');
         changeThetaX(StateManager.getInstance().getState('model'), newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-3', () => {
-        const newTheta = StateManager.getInstance().getState('slider-3') * 30;
+        const newTheta = StateManager.getInstance().getState('slider-3');
         changeThetaY(StateManager.getInstance().getState('model'), newTheta, bodyPart);
     });
 
     StateManager.getInstance().subscribe('slider-4', () => {
-        const newTheta = StateManager.getInstance().getState('slider-4') * 30;
+        const newTheta = StateManager.getInstance().getState('slider-4');
         changeThetaZ(StateManager.getInstance().getState('model'), newTheta, bodyPart);
     });
 
-    function changeThetaX(MODEL: HierarchicalModel, newTheta: number, name: string) {
-        if (MODEL.name === name) {
-            MODEL.values.thetaX[MODEL.values.thetaX.length - 1] = newTheta;
+    function changeThetaX(model: HierarchicalModel, newTheta: number, name: string) {
+        if (model.name === name) {
+            const minThetaX = model.values?.limits?.thetaX?.min;
+            const maxThetaX = model.values?.limits?.thetaX?.max;
+
+            if ( (maxThetaX === undefined && minThetaX === undefined) || (maxThetaX !== undefined && maxThetaX >= newTheta) && (minThetaX !== undefined && minThetaX <= newTheta)) {
+                model.values.thetaX[model.values.thetaX.length - 1] = newTheta;
+            }
             return true;
         }
 
-        if (MODEL.children) {            
-            for(let child of MODEL.children) {
+        if (model.children) {            
+            for(let child of model.children) {
                 if (changeThetaX(child, newTheta, name)) {
                     return true;
                 }
@@ -247,14 +257,19 @@ function initAnimCanvas() {
         return false;
     }
 
-    function changeThetaY(MODEL: HierarchicalModel, newTheta: number, name: string) {
-        if (MODEL.name === name) {
-            MODEL.values.thetaY[MODEL.values.thetaY.length - 1] = newTheta;
+    function changeThetaY(model: HierarchicalModel, newTheta: number, name: string) {
+        if (model.name === name) {
+            const minThetaY = model.values?.limits?.thetaY?.min;
+            const maxThetaY = model.values?.limits?.thetaY?.max;
+
+            if ( (maxThetaY === undefined && minThetaY === undefined) || (maxThetaY !== undefined && maxThetaY >= newTheta) && (minThetaY !== undefined && minThetaY <= newTheta)) {
+                model.values.thetaY[model.values.thetaY.length - 1] = newTheta;
+            }
             return true;
         }
 
-        if (MODEL.children) {            
-            for(let child of MODEL.children) {
+        if (model.children) {            
+            for(let child of model.children) {
                 if (changeThetaY(child, newTheta, name)) {
                     return true;
                 }
@@ -264,14 +279,19 @@ function initAnimCanvas() {
         return false;
     }
 
-    function changeThetaZ(MODEL: HierarchicalModel, newTheta: number, name: string) {
-        if (MODEL.name === name) {
-            MODEL.values.thetaZ[MODEL.values.thetaZ.length - 1] = newTheta;
+    function changeThetaZ(model: HierarchicalModel, newTheta: number, name: string) {
+        if (model.name === name) {
+            const minThetaZ = model.values?.limits?.thetaZ?.min;
+            const maxThetaZ = model.values?.limits?.thetaZ?.max;
+
+            if ( (maxThetaZ === undefined && minThetaZ === undefined) || (maxThetaZ !== undefined && maxThetaZ >= newTheta) && (minThetaZ !== undefined && minThetaZ <= newTheta)) {
+                model.values.thetaZ[model.values.thetaZ.length - 1] = newTheta;
+            }
             return true;
         }
 
-        if (MODEL.children) {            
-            for(let child of MODEL.children) {
+        if (model.children) {            
+            for(let child of model.children) {
                 if (changeThetaZ(child, newTheta, name)) {
                     return true;
                 }
@@ -346,9 +366,9 @@ function render() {
 function drawHierarchy(hierarchy: HierarchicalModel) {
     const upperBodyColor = [];
     const currentFrame = StateManager.getInstance().getState('currentFrame');
-    const rotX = hierarchy.values.thetaX[currentFrame] / 100;
-    const rotY = hierarchy.values.thetaY[currentFrame] / 100;
-    const rotZ = hierarchy.values.thetaZ[currentFrame] / 100;
+    const rotX = hierarchy.values.thetaX[currentFrame];
+    const rotY = hierarchy.values.thetaY[currentFrame];
+    const rotZ = hierarchy.values.thetaZ[currentFrame];
     const tx = hierarchy.values.rx[0];
     const ty = hierarchy.values.ry[0];
     const tz = hierarchy.values.rz[0];

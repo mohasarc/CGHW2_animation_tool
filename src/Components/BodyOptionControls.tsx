@@ -38,7 +38,7 @@ export default function MotionControls() {
         <Card>
             <CardHeader title={'Body Parts'} titleTypographyProps={{ variant: 'body2', align: 'center', color: 'common.white' }} style={{ backgroundColor: '#323638' }} />
             <CardContent style={{ backgroundColor: '#3b4245' }}>
-                <FormLabel component="legend">Body Parts</FormLabel>
+                <FormLabel component="legend"></FormLabel>
                     <RadioGroup
                         aria-label="gender"
                         defaultValue="head"
@@ -46,7 +46,7 @@ export default function MotionControls() {
                         value={value}
                         onChange={(event: any) => { handleChange(event.target.value) }}
                     >
-                    {titles.map((title, i) => {
+                    {titles.map((title) => {
                         return (
                             <FormControlLabel value={title} control={<Radio />} label={title} />
                         )
